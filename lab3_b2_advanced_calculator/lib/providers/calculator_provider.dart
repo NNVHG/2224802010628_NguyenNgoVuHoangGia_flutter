@@ -1,10 +1,11 @@
+// lib/providers/calculator_provider.dart
 import 'dart:convert';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/calculation_history.dart';
 import '../models/calculator_mode.dart';
+import '../utils/expression_parser.dart';
 
 class CalculatorProvider extends ChangeNotifier {
   String _expression = '';
@@ -14,7 +15,6 @@ class CalculatorProvider extends ChangeNotifier {
   AngleMode _angleMode = AngleMode.degrees;
   List<CalculationHistory> _history = [];
 
-  // Getters - Đã thêm đầy đủ history để HistoryScreen nhận được dữ liệu
   List<CalculationHistory> get history => _history;
   String get expression => _expression;
   String get result => _result;
@@ -27,12 +27,16 @@ class CalculatorProvider extends ChangeNotifier {
   }
 
   void toggleMode() {
-    _mode = (_mode == CalculatorMode.basic) ? CalculatorMode.scientific : CalculatorMode.basic;
+    _mode = (_mode == CalculatorMode.basic)
+        ? CalculatorMode.scientific
+        : CalculatorMode.basic;
     notifyListeners();
   }
 
   void toggleAngleMode() {
-    _angleMode = (_angleMode == AngleMode.degrees) ? AngleMode.radians : AngleMode.degrees;
+    _angleMode = (_angleMode == AngleMode.degrees)
+        ? AngleMode.radians
+        : AngleMode.degrees;
     notifyListeners();
   }
 
@@ -59,6 +63,8 @@ class CalculatorProvider extends ChangeNotifier {
   void onButtonPressed(String value) {
     if (value == 'C') {
       clear();
+    } else if (value == 'CE') {
+      deleteLastCharacter();
     } else if (value == '=') {
       calculate();
     } else if (value == '+/-') {
@@ -67,9 +73,40 @@ class CalculatorProvider extends ChangeNotifier {
       addPercentage();
     } else if (value == '( )') {
       addParentheses();
+    } else if (value == 'x²') {
+      _applyUnaryOp('²');
+    } else if (value == '√') {
+      _expression = 'sqrt($_expression)';
+      notifyListeners();
+    } else if (value == 'sin') {
+      _expression = 'sin($_expression)';
+      notifyListeners();
+    } else if (value == 'cos') {
+      _expression = 'cos($_expression)';
+      notifyListeners();
+    } else if (value == 'tan') {
+      _expression = 'tan($_expression)';
+      notifyListeners();
+    } else if (value == 'ln') {
+      _expression = 'log($_expression)';
+      notifyListeners();
+    } else if (value == 'log') {
+      _expression = 'log($_expression)/log(10)';
+      notifyListeners();
+    } else if (value == 'x^y') {
+      _expression += '^';
+      notifyListeners();
+    } else if (value == 'π') {
+      _expression += 'π';
+      notifyListeners();
     } else {
       addToExpression(value);
     }
+  }
+
+  void _applyUnaryOp(String op) {
+    _expression += op;
+    notifyListeners();
   }
 
   void addToExpression(String value) {
@@ -95,7 +132,7 @@ class CalculatorProvider extends ChangeNotifier {
       if (_expression.startsWith('-')) {
         _expression = _expression.substring(1);
       } else {
-        _expression = '-' + _expression;
+        _expression = '-$_expression';
       }
       notifyListeners();
     }
@@ -119,27 +156,22 @@ class CalculatorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // CHỈ CÓ ĐÚNG MỘT HÀM CALCULATE NÀY TRONG FILE
   void calculate() {
     try {
-      String finalExpression = _expression
-          .replaceAll('×', '*')
-          .replaceAll('÷', '/')
-          .replaceAll('%', '/100')
-          .replaceAll('π', math.pi.toString())
-          .replaceAll('e', math.e.toString());
+      bool isDeg = _angleMode == AngleMode.degrees;
+      String finalExpression = CalcParser.preProcess(_expression, isDeg);
+
+      finalExpression = finalExpression.replaceAllMapped(
+        RegExp(r'sqrt\(([^)]+)\)'),
+            (m) => '(${m[1]})^0.5',
+      );
 
       Parser p = Parser();
       Expression exp = p.parse(finalExpression);
       ContextModel cm = ContextModel();
       double eval = exp.evaluate(EvaluationType.REAL, cm);
 
-      // Định dạng số thập phân đẹp hơn
-      _result = eval.toStringAsFixed(10);
-      if (_result.contains('.')) {
-        _result = _result.replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '');
-      }
-
+      _result = CalcParser.formatResult(eval, 10);
       _saveToHistory(_expression, _result);
       _expression = _result;
     } catch (e) {
@@ -148,7 +180,6 @@ class CalculatorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Lịch sử tính toán ---
   Future<void> _saveToHistory(String exp, String res) async {
     final prefs = await SharedPreferences.getInstance();
     final newRecord = CalculationHistory(
@@ -160,16 +191,20 @@ class CalculatorProvider extends ChangeNotifier {
     if (_history.length > 50) {
       _history.removeLast();
     }
-    List<String> historyJson = _history.map((e) => jsonEncode(e.toJson())).toList();
+    final historyJson =
+    _history.map((e) => jsonEncode(e.toJson())).toList();
     await prefs.setStringList('calc_history', historyJson);
     notifyListeners();
   }
 
   Future<void> _loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    List<String>? historyString = prefs.getStringList('calc_history');
+    final historyString = prefs.getStringList('calc_history');
     if (historyString != null) {
-      _history = historyString.map((item) => CalculationHistory.fromJson(jsonDecode(item))).toList();
+      _history = historyString
+          .map((item) =>
+          CalculationHistory.fromJson(jsonDecode(item)))
+          .toList();
       notifyListeners();
     }
   }
