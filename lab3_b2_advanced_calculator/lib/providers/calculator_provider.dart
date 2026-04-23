@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 import '../models/calculation_history.dart';
 import '../models/calculator_mode.dart';
 import '../utils/expression_parser.dart';
-import 'package:flutter/services.dart';
 
 class CalculatorProvider extends ChangeNotifier {
   bool _isSoundOn = true;
@@ -24,7 +24,12 @@ class CalculatorProvider extends ChangeNotifier {
   bool get hasMemory => _memory != 0;
 
   CalculatorProvider() {
-    _loadHistory();
+    _initProvider();
+  }
+
+  Future<void> _initProvider() async {
+    await _loadSettings();
+    await _loadHistory();
   }
 
   void toggleMode() {
@@ -39,9 +44,7 @@ class CalculatorProvider extends ChangeNotifier {
   }
 
   void toggleAngleMode() {
-    _angleMode = (_angleMode == AngleMode.degrees)
-        ? AngleMode.radians
-        : AngleMode.degrees;
+    _angleMode = (_angleMode == AngleMode.degrees) ? AngleMode.radians : AngleMode.degrees;
     notifyListeners();
   }
 
@@ -56,7 +59,7 @@ class CalculatorProvider extends ChangeNotifier {
   }
 
   void memoryRecall() {
-    _expression = _memory.toString();
+    _expression += _memory.toString();
     notifyListeners();
   }
 
@@ -65,68 +68,92 @@ class CalculatorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Xử lý sự kiện nút bấm ---
   void onButtonPressed(String value) {
     if (_isSoundOn) {
       SystemSound.play(SystemSoundType.click);
     }
-    if (value == 'C') {
-      clear();
-    } else if (value == 'CE') {
-      deleteLastCharacter();
-    } else if (value == '=') {
-      calculate();
-    } else if (value == '+/-') {
-      toggleSign();
-    } else if (value == '%') {
-      addPercentage();
-    } else if (value == '( )') {
-      addParentheses();
-    } else if (value == 'x²') {
-      _applyUnaryOp('²');
-    } else if (value == '√') {
-      _expression = 'sqrt($_expression)';
-      notifyListeners();
-    } else if (value == 'sin') {
-      _expression = 'sin($_expression)';
-      notifyListeners();
-    } else if (value == 'cos') {
-      _expression = 'cos($_expression)';
-      notifyListeners();
-    } else if (value == 'tan') {
-      _expression = 'tan($_expression)';
-      notifyListeners();
-    } else if (value == 'ln') {
-      _expression = 'log($_expression)';
-      notifyListeners();
-    } else if (value == 'log') {
-      _expression = 'log($_expression)/log(10)';
-      notifyListeners();
-    } else if (value == 'x^y') {
-      _expression += '^';
-      notifyListeners();
-    } else if (value == 'π') {
-      _expression += 'π';
-      notifyListeners();
-    } else {
-      addToExpression(value);
+
+    switch (value) {
+      case 'C':
+        clear();
+        break;
+      case 'AC':
+      case 'CE':
+        deleteLastCharacter();
+        break;
+      case '=':
+        calculate();
+        break;
+      case '+/-':
+        toggleSign();
+        break;
+      case '%':
+        _expression += '%';
+        notifyListeners();
+        break;
+      case '( )':
+        addParentheses();
+        break;
+      case 'x²':
+        _expression += '^2';
+        notifyListeners();
+        break;
+      case '√':
+        _expression += 'sqrt(';
+        notifyListeners();
+        break;
+      case 'sin':
+      case 'cos':
+      case 'tan':
+      case 'ln':
+        _expression += '$value(';
+        notifyListeners();
+        break;
+      case 'log':
+        _expression += 'log(10,'; // Dạng log cơ số 10
+        notifyListeners();
+        break;
+      case 'x^y':
+        _expression += '^';
+        notifyListeners();
+        break;
+      case 'π':
+        _expression += 'π';
+        notifyListeners();
+      case 'e':
+        _expression += 'e';
+        notifyListeners();
+        break;
+      default:
+        _expression += value;
+        notifyListeners();
     }
   }
-
-  void _applyUnaryOp(String op) {
-    _expression += op;
-    notifyListeners();
-  }
-
   void addToExpression(String value) {
-    _expression += value;
+    _expression = value;
+    _result = '0';
     notifyListeners();
   }
 
   void deleteLastCharacter() {
-    if (_expression.isNotEmpty) {
-      _expression = _expression.substring(0, _expression.length - 1);
-      notifyListeners();
+    if (_expression.isEmpty) return;
+
+    final List<String> customFunctions = ['sin(', 'cos(', 'tan(', 'sqrt(', 'log(', 'ln('];
+    bool deleted = false;
+
+    for (var func in customFunctions) {
+      if (_expression.endsWith(func)) {
+        _expression = _expression.substring(0, _expression.length - func.length);
+        deleted = true;
+        break;
+      }
     }
+
+    if (!deleted) {
+      _expression = _expression.substring(0, _expression.length - 1);
+    }
+    notifyListeners();
   }
 
   void clear() {
@@ -136,27 +163,19 @@ class CalculatorProvider extends ChangeNotifier {
   }
 
   void toggleSign() {
-    if (_expression.isNotEmpty) {
-      if (_expression.startsWith('-')) {
-        _expression = _expression.substring(1);
-      } else {
-        _expression = '-$_expression';
-      }
-      notifyListeners();
+    if (_expression.isEmpty) return;
+    if (_expression.startsWith('-')) {
+      _expression = _expression.substring(1);
+    } else {
+      _expression = '-$_expression';
     }
-  }
-
-  void addPercentage() {
-    if (_expression.isNotEmpty) {
-      _expression += '%';
-      notifyListeners();
-    }
+    notifyListeners();
   }
 
   void addParentheses() {
     int openCount = _expression.split('(').length - 1;
     int closeCount = _expression.split(')').length - 1;
-    if (openCount > closeCount) {
+    if (openCount > closeCount && !_expression.endsWith('(')) {
       _expression += ')';
     } else {
       _expression += '(';
@@ -164,15 +183,13 @@ class CalculatorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Logic Tính toán ---
   void calculate() {
+    if (_expression.isEmpty) return;
+
     try {
       bool isDeg = _angleMode == AngleMode.degrees;
       String finalExpression = CalcParser.preProcess(_expression, isDeg);
-
-      finalExpression = finalExpression.replaceAllMapped(
-        RegExp(r'sqrt\(([^)]+)\)'),
-            (m) => '(${m[1]})^0.5',
-      );
 
       Parser p = Parser();
       Expression exp = p.parse(finalExpression);
@@ -188,6 +205,7 @@ class CalculatorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Lưu trữ dữ liệu (Persistence) ---
   Future<void> _saveToHistory(String exp, String res) async {
     final prefs = await SharedPreferences.getInstance();
     final newRecord = CalculationHistory(
@@ -195,26 +213,26 @@ class CalculatorProvider extends ChangeNotifier {
       result: res,
       timestamp: DateTime.now(),
     );
+
     _history.insert(0, newRecord);
-    if (_history.length > 50) {
-      _history.removeLast();
-    }
-    final historyJson =
-    _history.map((e) => jsonEncode(e.toJson())).toList();
+    if (_history.length > 50) _history.removeLast();
+
+    final historyJson = _history.map((e) => jsonEncode(e.toJson())).toList();
     await prefs.setStringList('calc_history', historyJson);
-    notifyListeners();
   }
 
   Future<void> _loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
-
-    _isSoundOn = prefs.getBool('sound_effects') ?? true;
-
     List<String>? historyString = prefs.getStringList('calc_history');
     if (historyString != null) {
       _history = historyString.map((item) => CalculationHistory.fromJson(jsonDecode(item))).toList();
       notifyListeners();
     }
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    _isSoundOn = prefs.getBool('sound_effects') ?? true;
   }
 
   Future<void> clearAllHistory() async {
