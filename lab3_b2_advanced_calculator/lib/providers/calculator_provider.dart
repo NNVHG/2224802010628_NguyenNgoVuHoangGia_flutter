@@ -6,14 +6,18 @@ import 'package:flutter/services.dart';
 import '../models/calculation_history.dart';
 import '../models/calculator_mode.dart';
 import '../utils/expression_parser.dart';
+import '../utils/calculator_logic.dart';
 
 class CalculatorProvider extends ChangeNotifier {
   bool _isSoundOn = true;
   String _expression = '';
   String _result = '0';
   double _memory = 0;
+
   CalculatorMode _mode = CalculatorMode.basic;
   AngleMode _angleMode = AngleMode.degrees;
+  NumberBase _numberBase = NumberBase.dec;
+
   List<CalculationHistory> _history = [];
 
   List<CalculationHistory> get history => _history;
@@ -21,6 +25,7 @@ class CalculatorProvider extends ChangeNotifier {
   String get result => _result;
   CalculatorMode get mode => _mode;
   AngleMode get angleMode => _angleMode;
+  NumberBase get numberBase => _numberBase;
   bool get hasMemory => _memory != 0;
 
   CalculatorProvider() {
@@ -37,9 +42,11 @@ class CalculatorProvider extends ChangeNotifier {
       _mode = CalculatorMode.scientific;
     } else if (_mode == CalculatorMode.scientific) {
       _mode = CalculatorMode.programmer;
+      _numberBase = NumberBase.dec;
     } else {
       _mode = CalculatorMode.basic;
     }
+    clear();
     notifyListeners();
   }
 
@@ -48,6 +55,7 @@ class CalculatorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Logic Bộ nhớ (Memory) ---
   void memoryAdd() {
     _memory += double.tryParse(_result) ?? 0;
     notifyListeners();
@@ -75,10 +83,43 @@ class CalculatorProvider extends ChangeNotifier {
     }
 
     switch (value) {
+      case 'HEX':
+      case 'DEC':
+      case 'OCT':
+      case 'BIN':
+        _setBase(value);
+        break;
+      case 'AND':
+      case 'OR':
+      case 'XOR':
+      case '<<':
+      case '>>':
+        _expression += ' $value ';
+        notifyListeners();
+        break;
+      case 'NOT':
+        _expression = 'NOT($_expression)';
+        notifyListeners();
+        break;
+      case 'A':
+      case 'B':
+      case 'D':
+      case 'E':
+      case 'F':
+        addToExpression(value);
+        break;
+
+    // CÁC NÚT ĐIỀU KHIỂN & KHOA HỌC
       case 'C':
-        clear();
+        if (_mode == CalculatorMode.programmer) {
+          addToExpression('C');
+        } else {
+          clear();
+        }
         break;
       case 'AC':
+        clear();
+        break;
       case 'CE':
         deleteLastCharacter();
         break;
@@ -111,7 +152,7 @@ class CalculatorProvider extends ChangeNotifier {
         notifyListeners();
         break;
       case 'log':
-        _expression += 'log(10,'; // Dạng log cơ số 10
+        _expression += 'log(10,';
         notifyListeners();
         break;
       case 'x^y':
@@ -126,13 +167,32 @@ class CalculatorProvider extends ChangeNotifier {
         notifyListeners();
         break;
       default:
-        _expression += value;
-        notifyListeners();
+        addToExpression(value);
     }
   }
+
   void addToExpression(String value) {
-    _expression = value;
-    _result = '0';
+    _expression += value;
+    notifyListeners();
+  }
+
+  void _setBase(String baseStr) {
+    NumberBase newBase;
+    switch (baseStr) {
+      case 'HEX': newBase = NumberBase.hex; break;
+      case 'OCT': newBase = NumberBase.oct; break;
+      case 'BIN': newBase = NumberBase.bin; break;
+      default: newBase = NumberBase.dec; break;
+    }
+
+    if (_expression.isNotEmpty && !_expression.contains(' ')) {
+      try {
+        _expression = ProgrammerLogic.convert(_expression, _numberBase, newBase);
+      } catch (e) {
+        _expression = ''; // Lỗi thì xóa
+      }
+    }
+    _numberBase = newBase;
     notifyListeners();
   }
 
@@ -188,21 +248,57 @@ class CalculatorProvider extends ChangeNotifier {
     if (_expression.isEmpty) return;
 
     try {
-      bool isDeg = _angleMode == AngleMode.degrees;
-      String finalExpression = CalcParser.preProcess(_expression, isDeg);
+      if (_mode == CalculatorMode.programmer) {
+        // TÍNH TOÁN DÀNH RIÊNG CHO LẬP TRÌNH VIÊN
+        _result = _calculateProgrammer();
+      } else {
+        // TÍNH TOÁN DÀNH CHO BASIC & SCIENTIFIC
+        bool isDeg = _angleMode == AngleMode.degrees;
+        String finalExpression = CalcParser.preProcess(_expression, isDeg);
 
-      Parser p = Parser();
-      Expression exp = p.parse(finalExpression);
-      ContextModel cm = ContextModel();
-      double eval = exp.evaluate(EvaluationType.REAL, cm);
+        Parser p = Parser();
+        Expression exp = p.parse(finalExpression);
+        ContextModel cm = ContextModel();
+        double eval = exp.evaluate(EvaluationType.REAL, cm);
 
-      _result = CalcParser.formatResult(eval, 10);
+        _result = CalcParser.formatResult(eval, 10);
+      }
+
       _saveToHistory(_expression, _result);
       _expression = _result;
     } catch (e) {
       _result = 'Error';
     }
     notifyListeners();
+  }
+
+  // Hàm xử lý toán tử bitwise
+  String _calculateProgrammer() {
+    final tokens = _expression.trim().split(' ');
+
+    if (tokens.length == 3) {
+      int a = ProgrammerLogic.parse(tokens[0], _numberBase);
+      String op = tokens[1];
+      int b = ProgrammerLogic.parse(tokens[2], _numberBase);
+
+      int res = 0;
+      switch (op) {
+        case 'AND': res = ProgrammerLogic.and(a, b); break;
+        case 'OR': res = ProgrammerLogic.or(a, b); break;
+        case 'XOR': res = ProgrammerLogic.xor(a, b); break;
+        case '<<': res = ProgrammerLogic.leftShift(a, b); break;
+        case '>>': res = ProgrammerLogic.rightShift(a, b); break;
+      }
+      return ProgrammerLogic.format(res, _numberBase);
+    }
+
+    else if (_expression.startsWith('NOT(') && _expression.endsWith(')')) {
+      int a = ProgrammerLogic.parse(_expression.substring(4, _expression.length - 1), _numberBase);
+      return ProgrammerLogic.format(ProgrammerLogic.not(a), _numberBase);
+    }
+
+    int val = ProgrammerLogic.parse(_expression, _numberBase);
+    return ProgrammerLogic.format(val, _numberBase);
   }
 
   // --- Lưu trữ dữ liệu (Persistence) ---
