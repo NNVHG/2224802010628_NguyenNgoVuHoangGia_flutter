@@ -98,15 +98,22 @@ class SettingsScreen extends StatelessWidget {
 
               const Divider(color: Colors.blueGrey),
 
-              // --- Xóa toàn bộ lịch sử ---
-              ListTile(
-                leading:
-                const Icon(Icons.delete_forever, color: Colors.redAccent),
+              // Thêm vào bên trong phần children của ListView trong SettingsScreen
+              SwitchListTile(
                 title: const Text(
-                  'Xóa toàn bộ lịch sử',
-                  style: TextStyle(color: Colors.redAccent),
+                  'Âm thanh (Sound Effects)',
+                  style: TextStyle(fontFamily: 'Inter', fontSize: 16),
                 ),
-                onTap: () => _showClearHistoryDialog(context),
+                subtitle: const Text(
+                  'Phát âm thanh click khi bấm nút',
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+                // Giả sử bạn đang lưu trạng thái này trong ThemeProvider
+                value: context.watch<ThemeProvider>().soundEffects,
+                activeColor: const Color(0xFF4ECDC4),
+                onChanged: (bool value) {
+                  context.read<ThemeProvider>().toggleSoundEffects(value);
+                },
               ),
 
               const SizedBox(height: 32),

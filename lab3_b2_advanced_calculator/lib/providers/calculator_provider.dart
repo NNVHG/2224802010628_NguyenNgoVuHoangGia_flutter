@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/calculation_history.dart';
 import '../models/calculator_mode.dart';
 import '../utils/expression_parser.dart';
+import 'package:flutter/services.dart';
 
 class CalculatorProvider extends ChangeNotifier {
   String _expression = '';
@@ -64,7 +65,15 @@ class CalculatorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void onButtonPressed(String value) {
+  void onButtonPressed(String value) async {
+    // 1. Lấy trạng thái cài đặt âm thanh từ SharedPreferences (Hoặc truyền từ UI xuống)
+    final prefs = await SharedPreferences.getInstance();
+    bool isSoundOn = prefs.getBool('sound_effects') ?? true; // Mặc định là true
+
+    // 2. Phát âm thanh "Click" của hệ thống nếu đang bật
+    if (isSoundOn) {
+      SystemSound.play(SystemSoundType.click);
+    }
     if (value == 'C') {
       clear();
     } else if (value == 'CE') {

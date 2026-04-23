@@ -10,7 +10,21 @@ class ThemeProvider extends ChangeNotifier {
 
   // Trả về ThemeMode của Flutter (không phải AppThemeMode của mình)
   bool get isDark => _settings.themeMode == AppThemeMode.dark;
+// --- Bổ sung tính năng Âm thanh (Sound Effects) ---
+  bool _soundEffects = true; // Mặc định là bật âm thanh
 
+  // Cấp quyền đọc biến _soundEffects (Sửa lỗi getter 'soundEffects')
+  bool get soundEffects => _soundEffects;
+
+  // Hàm bật/tắt và lưu trạng thái (Sửa lỗi method 'toggleSoundEffects')
+  Future<void> toggleSoundEffects(bool value) async {
+    _soundEffects = value;
+    notifyListeners(); // Cập nhật lại giao diện (Công tắc sẽ gạt qua lại)
+
+    // Lưu lựa chọn của người dùng vào bộ nhớ máy
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('sound_effects', value);
+  }
   ThemeProvider() {
     _loadSettings();
   }
@@ -21,7 +35,9 @@ class ThemeProvider extends ChangeNotifier {
     final precision  = prefs.getInt('decimal_precision') ?? 6;
     final histSize   = prefs.getInt('history_size') ?? 50;
     final haptic     = prefs.getBool('haptic_feedback') ?? true;
-
+    // Lấy trạng thái âm thanh từ bộ nhớ, nếu chưa có thì mặc định là true (bật)
+    _soundEffects = prefs.getBool('sound_effects') ?? true;
+    notifyListeners();
     _settings = CalculatorSettings(
       themeMode:        AppThemeMode.values[themeIndex],  // ← AppThemeMode
       decimalPrecision: precision,
