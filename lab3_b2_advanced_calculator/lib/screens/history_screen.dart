@@ -17,7 +17,7 @@ class HistoryScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(), // ← Nút back rõ ràng
+          onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
           IconButton(
@@ -54,7 +54,7 @@ class HistoryScreen extends StatelessWidget {
               final item = provider.history[index];
               return InkWell(
                 onTap: () {
-                  provider.addToExpression(item.expression); // ← Lấy biểu thức
+                  provider.addToExpression(item.expression);
                   Navigator.of(context).pop();
                 },
                 child: Padding(
@@ -63,12 +63,11 @@ class HistoryScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      // Biểu thức (expression) — tap để dùng lại
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           const Icon(
-                            Icons.replay,               // ← Icon gợi ý có thể tap
+                            Icons.replay,
                             size: 14,
                             color: Colors.grey,
                           ),
@@ -84,7 +83,6 @@ class HistoryScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      // Kết quả (result)
                       Text(
                         '= ${item.result}',
                         style: const TextStyle(
@@ -95,7 +93,6 @@ class HistoryScreen extends StatelessWidget {
                         textAlign: TextAlign.right,
                       ),
                       const SizedBox(height: 4),
-                      // Thời gian (timestamp)
                       Text(
                         DateFormat('HH:mm - dd/MM/yyyy').format(item.timestamp),
                         style: const TextStyle(
@@ -115,7 +112,6 @@ class HistoryScreen extends StatelessWidget {
   }
 
   void _showClearDialog(BuildContext context) {
-    // Lưu provider và navigator trước khi show dialog
     final provider = context.read<CalculatorProvider>();
 
     showDialog(
@@ -138,8 +134,8 @@ class HistoryScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              provider.clearAllHistory();              // ← Dùng provider đã lưu
-              Navigator.of(dialogContext).pop();       // Đóng dialog
+              provider.clearAllHistory();
+              Navigator.of(dialogContext).pop();
             },
             child: const Text(
               'Xóa',

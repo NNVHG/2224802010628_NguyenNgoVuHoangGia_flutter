@@ -12,7 +12,7 @@ Một ứng dụng Máy tính Đa năng được phát triển bằng Flutter, h
     * Nhấn giữ (Long press) nút 'C' để xóa toàn bộ lịch sử.
 * **Lịch sử & Bộ nhớ (History & Memory):** Lưu trữ các phép tính bằng `SharedPreferences`. Hỗ trợ các biến nhớ M+, M-, MR, MC.
 * **Giao diện Tương thích (Responsive UI):** Giao diện tự động tối ưu hóa cho màn hình dọc (Mobile) và tự động mở rộng bàn phím khi xoay ngang (Landscape/Tablet).
-* **Cài đặt (Settings):** Hỗ trợ Dark/Light Theme, Haptic Feedback (rung) và Sound Effects (âm thanh).
+* **Cài đặt (Settings):** Hỗ trợ Dark/Light Theme (lỗi nhẹ), Haptic Feedback (rung) và Sound Effects (âm thanh).
 
 ## 🏗️ Kiến trúc & Công nghệ (Architecture)
 
