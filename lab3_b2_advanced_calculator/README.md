@@ -30,3 +30,23 @@ lib/
 ├── screens/        # Các màn hình chính (Calculator, Settings, History)
 ├── widgets/        # Các UI component có thể tái sử dụng (CalculatorButton)
 └── main.dart       # Điểm khởi chạy của ứng dụng
+
+#### Demo:
+##Basic
+<img width="409" height="866" alt="image" src="https://github.com/user-attachments/assets/f34b8e0f-a803-4bb8-9764-647d9c547cf9" />
+
+##Scientific
+<img width="413" height="880" alt="image" src="https://github.com/user-attachments/assets/453b8587-13e7-4a87-bdb6-0a3ea17e15f6" />
+
+##Programmer
+<img width="414" height="866" alt="image" src="https://github.com/user-attachments/assets/5875e450-0dd8-40db-ac6a-7894dccec7ed" />
+
+##Settings
+<img width="408" height="869" alt="image" src="https://github.com/user-attachments/assets/37c89b1c-9321-47ff-b5f0-4761b0c5024b" />
+
+##History
+<img width="414" height="883" alt="image" src="https://github.com/user-attachments/assets/3767d31b-4cfa-4311-90e8-a0ca8a1fe308" />
+
+
+
+
