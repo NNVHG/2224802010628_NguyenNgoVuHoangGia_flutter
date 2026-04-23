@@ -1,49 +1,72 @@
 import 'package:flutter/material.dart';
 
-class CalculatorButton extends StatelessWidget {
+class CalculatorButton extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
+  final VoidCallback? onLongPress;
 
   const CalculatorButton({
     Key? key,
     required this.text,
     required this.onPressed,
+    this.onLongPress,
   }) : super(key: key);
 
-  // Hàm xác định màu nền (background color) dựa vào ký tự của nút
+  @override
+  State<CalculatorButton> createState() => _CalculatorButtonState();
+}
+
+class _CalculatorButtonState extends State<CalculatorButton> {
+  // Biến quản lý tỷ lệ thu phóng của nút
+  double _scale = 1.0;
+
   Color get _backgroundColor {
-    if (text == 'C') return const Color(0xFF963E3E); // Màu đỏ
-    if (text == '=') return const Color(0xFF076544); // Màu xanh lá sáng
-    if (['÷', '×', '-', '+', '%', '( )'].contains(text)) {
-      return const Color(0xFF394734); // Màu xanh rêu tối
+    if (widget.text == 'C' || widget.text == 'AC' || widget.text == 'CE') return const Color(0xFF963E3E);
+    if (widget.text == '=') return const Color(0xFF076544);
+    if (['÷', '×', '-', '+', '%', '( )', '(', ')'].contains(widget.text)) {
+      return const Color(0xFF394734);
     }
-    return const Color(0xFF272727); // Màu xám đậm cho số và dấu .
+    return const Color(0xFF272727);
   }
 
-  // Hàm xác định màu chữ (text color)
-  Color get _textColor {
-    return Colors.white;
-  }
+// Mở file lib/widgets/calculator_button.dart và cập nhật hàm build:
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _backgroundColor,
-        foregroundColor: _textColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100), // Bo tròn hoàn toàn theo CSS
-        ),
-        padding: EdgeInsets.zero,
-        elevation: 0,
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 38, // Điều chỉnh size chữ cho phù hợp với khung hình
-          fontWeight: FontWeight.w400,
+    return Listener(
+      onPointerDown: (_) => setState(() => _scale = 0.9),
+      onPointerUp: (_) => setState(() => _scale = 1.0),
+      onPointerCancel: (_) => setState(() => _scale = 1.0),
+      child: AnimatedScale(
+        scale: _scale,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeInOut,
+        child: ElevatedButton(
+          onPressed: widget.onPressed,
+          onLongPress: widget.onLongPress,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _backgroundColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              // GIỮ LẠI NÚT TRÒN HOÀN HẢO THEO ĐÚNG THIẾT KẾ CSS
+              borderRadius: BorderRadius.circular(100),
+            ),
+            // Tăng padding để chữ thu nhỏ lại, không bị đâm ra viền cong của nút tròn
+            padding: const EdgeInsets.all(8),
+            elevation: 0,
+            splashFactory: NoSplash.splashFactory,
+          ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              widget.text,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 32, // Chữ sẽ tự động co lại nhờ FittedBox nếu quá dài
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
         ),
       ),
     );

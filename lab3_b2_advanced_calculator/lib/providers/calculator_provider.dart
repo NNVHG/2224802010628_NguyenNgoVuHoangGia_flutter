@@ -27,9 +27,13 @@ class CalculatorProvider extends ChangeNotifier {
   }
 
   void toggleMode() {
-    _mode = (_mode == CalculatorMode.basic)
-        ? CalculatorMode.scientific
-        : CalculatorMode.basic;
+    if (_mode == CalculatorMode.basic) {
+      _mode = CalculatorMode.scientific;
+    } else if (_mode == CalculatorMode.scientific) {
+      _mode = CalculatorMode.programmer;
+    } else {
+      _mode = CalculatorMode.basic;
+    }
     notifyListeners();
   }
 
