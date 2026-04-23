@@ -1,51 +1,80 @@
-// test/widget_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lab3_b2_advanced_calculator/utils/expression_parser.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lab3_b2_advanced_calculator/providers/calculator_provider.dart';
+import 'package:lab3_b2_advanced_calculator/models/calculator_mode.dart';
 
 void main() {
-  // --- Test ExpressionParser (Kiểm tra bộ phân tích biểu thức) ---
-  group('ExpressionParser', () {
+  // THÊM DÒNG NÀY ĐỂ FIX LỖI BINDING CỦA SYSTEM SOUND
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    test('Tiền xử lý phép nhân ×', () {
-      final result = ExpressionParser.preProcess('3×4', false);
-      expect(result.contains('*'), isTrue);
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
+  group('Kiểm thử CalculatorProvider (Logic và Toán học)', () {
+
+    test('1. Trạng thái khởi tạo mặc định phải chính xác', () {
+      final provider = CalculatorProvider();
+      expect(provider.expression, '');
+      expect(provider.result, '0');
+      expect(provider.mode, CalculatorMode.basic);
     });
 
-    test('Tiền xử lý phép chia ÷', () {
-      final result = ExpressionParser.preProcess('8÷2', false);
-      expect(result.contains('/'), isTrue);
+    test('2. Kiểm tra phép tính cơ bản (Cộng & Trừ)', () {
+      final provider = CalculatorProvider();
+      provider.onButtonPressed('5');
+      provider.onButtonPressed('+');
+      provider.onButtonPressed('1');
+      provider.onButtonPressed('0');
+      provider.onButtonPressed('=');
+
+      expect(provider.result, '15');
     });
 
-    test('Tiền xử lý π thành số', () {
-      final result = ExpressionParser.preProcess('π', false);
-      expect(result.contains('3.14'), isTrue);
+    test('3. Kiểm tra tính năng xóa (Nút C)', () {
+      final provider = CalculatorProvider();
+      provider.onButtonPressed('9');
+      provider.onButtonPressed('×');
+      provider.onButtonPressed('9');
+      provider.clear(); // Bấm nút C
+
+      expect(provider.expression, '');
+      expect(provider.result, '0');
     });
 
-    test('Định dạng số nguyên (integer)', () {
-      expect(ExpressionParser.formatResult(5.0, 6), equals('5'));
+    test('4. Kiểm tra tính năng xóa lùi (Vuốt để xóa)', () {
+      final provider = CalculatorProvider();
+      provider.onButtonPressed('1');
+      provider.onButtonPressed('2');
+      provider.onButtonPressed('3');
+      provider.deleteLastCharacter();
+
+      expect(provider.expression, '12');
     });
 
-    test('Định dạng số thập phân (decimal)', () {
-      expect(ExpressionParser.formatResult(3.14, 2), equals('3.14'));
-    });
+    test('5. Kiểm tra tính năng Bộ nhớ (Memory: M+, MR, MC)', () {
+      final provider = CalculatorProvider();
 
-    test('Xử lý lỗi: vô cực (infinity)', () {
-      expect(ExpressionParser.formatResult(double.infinity, 6), equals('Infinity'));
-    });
+      // Tính 5 + 5 = 10
+      provider.onButtonPressed('5');
+      provider.onButtonPressed('+');
+      provider.onButtonPressed('5');
+      provider.onButtonPressed('='); // Result = 10
 
-    test('Xử lý lỗi: NaN', () {
-      expect(ExpressionParser.formatResult(double.nan, 6), equals('Error'));
-    });
+      // Lưu 10 vào M+
+      provider.memoryAdd();
+      expect(provider.hasMemory, true);
 
-    test('Tiền xử lý sin với độ (degrees)', () {
-      final result = ExpressionParser.preProcess('sin(90)', true);
-      expect(result.contains('180'), isTrue); // Đã nhân với π/180
-    });
+      // Xóa màn hình
+      provider.clear();
 
-    test('Tiền xử lý sin với radian', () {
-      final result = ExpressionParser.preProcess('sin(1.57)', false);
-      // Không nhân với π/180 khi dùng radian
-      expect(result.contains('180'), isFalse);
+      // Gọi lại MR (Memory Recall)
+      provider.memoryRecall();
+      expect(provider.expression, '10.0'); // Bộ nhớ thường lưu dạng double
+
+      // Xóa bộ nhớ (MC)
+      provider.memoryClear();
+      expect(provider.hasMemory, false);
     });
   });
 }

@@ -9,6 +9,7 @@ import '../utils/expression_parser.dart';
 import 'package:flutter/services.dart';
 
 class CalculatorProvider extends ChangeNotifier {
+  bool _isSoundOn = true;
   String _expression = '';
   String _result = '0';
   double _memory = 0;
@@ -65,13 +66,8 @@ class CalculatorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void onButtonPressed(String value) async {
-    // 1. Lấy trạng thái cài đặt âm thanh từ SharedPreferences (Hoặc truyền từ UI xuống)
-    final prefs = await SharedPreferences.getInstance();
-    bool isSoundOn = prefs.getBool('sound_effects') ?? true; // Mặc định là true
-
-    // 2. Phát âm thanh "Click" của hệ thống nếu đang bật
-    if (isSoundOn) {
+  void onButtonPressed(String value) {
+    if (_isSoundOn) {
       SystemSound.play(SystemSoundType.click);
     }
     if (value == 'C') {
@@ -212,12 +208,13 @@ class CalculatorProvider extends ChangeNotifier {
 
   Future<void> _loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    final historyString = prefs.getStringList('calc_history');
+
+    // Tải cài đặt âm thanh 1 lần duy nhất khi mở app
+    _isSoundOn = prefs.getBool('sound_effects') ?? true;
+
+    List<String>? historyString = prefs.getStringList('calc_history');
     if (historyString != null) {
-      _history = historyString
-          .map((item) =>
-          CalculationHistory.fromJson(jsonDecode(item)))
-          .toList();
+      _history = historyString.map((item) => CalculationHistory.fromJson(jsonDecode(item))).toList();
       notifyListeners();
     }
   }
