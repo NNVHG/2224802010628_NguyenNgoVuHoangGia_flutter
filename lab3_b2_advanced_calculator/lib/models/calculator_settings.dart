@@ -1,5 +1,3 @@
-// lib/models/calculator_settings.dart
-
 enum AppThemeMode { light, dark, system }
 
 class CalculatorSettings {
