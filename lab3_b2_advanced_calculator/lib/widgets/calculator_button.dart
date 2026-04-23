@@ -17,7 +17,6 @@ class CalculatorButton extends StatefulWidget {
 }
 
 class _CalculatorButtonState extends State<CalculatorButton> {
-  // Biến quản lý tỷ lệ thu phóng của nút
   double _scale = 1.0;
 
   Color get _backgroundColor {
@@ -28,8 +27,6 @@ class _CalculatorButtonState extends State<CalculatorButton> {
     }
     return const Color(0xFF272727);
   }
-
-// Mở file lib/widgets/calculator_button.dart và cập nhật hàm build:
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +45,8 @@ class _CalculatorButtonState extends State<CalculatorButton> {
             backgroundColor: _backgroundColor,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              // GIỮ LẠI NÚT TRÒN HOÀN HẢO THEO ĐÚNG THIẾT KẾ CSS
               borderRadius: BorderRadius.circular(100),
             ),
-            // Tăng padding để chữ thu nhỏ lại, không bị đâm ra viền cong của nút tròn
             padding: const EdgeInsets.all(8),
             elevation: 0,
             splashFactory: NoSplash.splashFactory,
@@ -62,7 +57,7 @@ class _CalculatorButtonState extends State<CalculatorButton> {
               widget.text,
               style: const TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 32, // Chữ sẽ tự động co lại nhờ FittedBox nếu quá dài
+                fontSize: 32,
                 fontWeight: FontWeight.w400,
               ),
             ),

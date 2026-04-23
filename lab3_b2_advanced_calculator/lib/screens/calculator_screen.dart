@@ -1,4 +1,3 @@
-// lib/screens/calculator_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/calculator_provider.dart';
@@ -61,7 +60,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      // Tắt SafeArea viền đáy ở Scaffold để giao quyền đẩy bàn phím xuống đáy
       body: SafeArea(
         bottom: false,
         child: Consumer<CalculatorProvider>(
@@ -79,23 +77,23 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               currentButtons = basicButtons;
               crossAxisCount = 4;
               maxWidth = 440;
-              aspectRatio = 1.0; // Nút tròn
+              aspectRatio = 1.0;
             } else if (isProg) {
               currentButtons = progButtons;
               crossAxisCount = 6;
               maxWidth = 440;
-              aspectRatio = 1.0; // Nút tròn
+              aspectRatio = 1.0;
             } else {
               if (isLandscape || screenWidth > 650) {
                 currentButtons = sciLandscapeButtons;
                 crossAxisCount = 8;
                 maxWidth = 850;
-                aspectRatio = 1.5; // Web/Tablet quay ngang thì dùng nút chữ nhật
+                aspectRatio = 1.5;
               } else {
                 currentButtons = sciPortraitButtons;
                 crossAxisCount = 6;
                 maxWidth = 440;
-                aspectRatio = 1.0; // Nút tròn
+                aspectRatio = 1.0;
               }
             }
 
@@ -104,7 +102,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 constraints: BoxConstraints(maxWidth: maxWidth),
                 child: Column(
                   children: [
-                    // --- Thanh điều hướng trên cùng ---
+                    // --- Thanh điều hướng trên cùng
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       child: Row(
@@ -168,10 +166,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       ),
                     ),
 
-                    // --- Vùng hiển thị (Display Area) ---
-// --- Vùng hiển thị (Display Area) ---
+                    // --- Vùng hiển thị (Display Area)
                     Expanded(
-                      flex: 3, // Dành 30% màn hình cho vùng số
+                      flex: 3,
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onScaleStart: (details) {
@@ -233,9 +230,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
                     const Divider(color: Colors.blueGrey, height: 1, thickness: 1),
 
-                    // --- Bàn phím nút bấm (Button Grid) ---
+                    // --- Bàn phím nút bấm (Button Grid)
                     Expanded(
-                      flex: 7, // Dành 70% màn hình cho bàn phím
+                      flex: 7,
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 16.0),
                         child: LayoutBuilder(
@@ -244,22 +241,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                             int rows = (currentButtons.length / cols).ceil();
                             double spacing = 8.0;
 
-                            // Trừ đi 24px padding 2 bên (12px mỗi bên)
                             double availableWidth = constraints.maxWidth - 24;
                             double availableHeight = constraints.maxHeight;
-
-                            // Tính kích thước tối đa của 1 nút để vừa chiều ngang HOẶC chiều dọc
                             double maxBtnWidth = (availableWidth - (cols - 1) * spacing) / cols;
                             double maxBtnHeight = (availableHeight - (rows - 1) * spacing) / rows;
-
-                            // CỐT LÕI: Chọn kích thước nhỏ hơn để đảm bảo nút luôn lọt thỏm vào màn hình và giữ đúng hình tròn 1:1
                             double btnSize = math.min(maxBtnWidth, maxBtnHeight);
-
-                            // Kích thước thật của toàn bộ lưới sau khi ép nút tròn
                             double gridWidth = btnSize * cols + (cols - 1) * spacing;
                             double gridHeight = btnSize * rows + (rows - 1) * spacing;
 
-                            return Center( // Căn giữa toàn bộ bàn phím để cân đối 2 bên
+                            return Center(
                               child: SizedBox(
                                 width: gridWidth,
                                 height: gridHeight,
@@ -276,13 +266,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                                   },
                                   child: GridView.builder(
                                     key: ValueKey<CalculatorMode>(provider.mode),
-                                    physics: const NeverScrollableScrollPhysics(), // Tắt cuộn hoàn toàn
+                                    physics: const NeverScrollableScrollPhysics(),
                                     itemCount: currentButtons.length,
                                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: cols,
                                       crossAxisSpacing: spacing,
                                       mainAxisSpacing: spacing,
-                                      childAspectRatio: 1.0, // GIỮ NGUYÊN NÚT TRÒN THEO YÊU CẦU
+                                      childAspectRatio: 1.0,
                                     ),
                                     itemBuilder: (context, index) {
                                       final btnText = currentButtons[index];

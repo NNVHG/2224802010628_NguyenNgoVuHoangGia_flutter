@@ -1,10 +1,8 @@
 // lib/utils/calculator_logic.dart
 
-// Enum hệ số đếm (Number Base)
 enum NumberBase { bin, oct, dec, hex }
 
 class ProgrammerLogic {
-  // Chuyển chuỗi sang số nguyên theo hệ cơ số (parse string to int by base)
   static int parse(String input, NumberBase base) {
     switch (base) {
       case NumberBase.bin:
@@ -18,7 +16,6 @@ class ProgrammerLogic {
     }
   }
 
-  // Chuyển số nguyên sang chuỗi theo hệ cơ số (format int to string by base)
   static String format(int value, NumberBase base) {
     switch (base) {
       case NumberBase.bin:
@@ -32,7 +29,6 @@ class ProgrammerLogic {
     }
   }
 
-  // Chuyển đổi giữa các hệ cơ số (convert between bases)
   static String convert(String input, NumberBase from, NumberBase to) {
     try {
       final intValue = parse(input, from);

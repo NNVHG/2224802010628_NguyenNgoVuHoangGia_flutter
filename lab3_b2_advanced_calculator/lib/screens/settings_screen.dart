@@ -1,4 +1,3 @@
-// lib/screens/settings_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/calculator_provider.dart';
@@ -26,7 +25,6 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
 
-              // --- Giao diện (Theme) ---
               _buildSectionTitle('Giao diện (Theme)'),
               const SizedBox(height: 8),
               Row(
@@ -44,7 +42,6 @@ class SettingsScreen extends StatelessWidget {
               const SizedBox(height: 16),
               const Divider(color: Colors.blueGrey),
 
-              // --- Độ chính xác thập phân (Decimal Precision) ---
               _buildSectionTitle(
                   'Độ chính xác thập phân: ${settings.decimalPrecision} chữ số'),
               Slider(
@@ -60,7 +57,6 @@ class SettingsScreen extends StatelessWidget {
 
               const Divider(color: Colors.blueGrey),
 
-              // --- Số lượng lịch sử (History Size) ---
               _buildSectionTitle('Số lượng lịch sử lưu'),
               const SizedBox(height: 8),
               Row(
@@ -85,7 +81,6 @@ class SettingsScreen extends StatelessWidget {
 
               const Divider(color: Colors.blueGrey),
 
-              // --- Phản hồi rung (Haptic Feedback) ---
               SwitchListTile(
                 title: const Text(
                   'Phản hồi rung (Haptic Feedback)',
@@ -98,7 +93,6 @@ class SettingsScreen extends StatelessWidget {
 
               const Divider(color: Colors.blueGrey),
 
-              // Thêm vào bên trong phần children của ListView trong SettingsScreen
               SwitchListTile(
                 title: const Text(
                   'Âm thanh (Sound Effects)',
@@ -108,7 +102,6 @@ class SettingsScreen extends StatelessWidget {
                   'Phát âm thanh click khi bấm nút',
                   style: TextStyle(color: Colors.grey, fontSize: 13),
                 ),
-                // Giả sử bạn đang lưu trạng thái này trong ThemeProvider
                 value: context.watch<ThemeProvider>().soundEffects,
                 activeColor: const Color(0xFF4ECDC4),
                 onChanged: (bool value) {
@@ -147,7 +140,7 @@ class SettingsScreen extends StatelessWidget {
       CalculatorSettings settings,
       ) {
     final selected = settings.themeMode == mode;
-    return FilterChip(                      // ← Dùng FilterChip thay ChoiceChip
+    return FilterChip(
       label: Text(
         label,
         style: TextStyle(
@@ -158,7 +151,7 @@ class SettingsScreen extends StatelessWidget {
       selectedColor: const Color(0xFF4ECDC4),
       backgroundColor: const Color(0xFF2C2C2C),
       checkmarkColor: Colors.black,
-      onSelected: (_) => provider.setTheme(mode),   // ← onSelected thay onChanged
+      onSelected: (_) => provider.setTheme(mode),
     );
   }
 

@@ -1,16 +1,16 @@
 // lib/models/calculator_settings.dart
 
-enum AppThemeMode { light, dark, system }  // ← Đổi ThemeMode → AppThemeMode
+enum AppThemeMode { light, dark, system }
 
 class CalculatorSettings {
-  final AppThemeMode themeMode;      // ← Đổi ở đây
+  final AppThemeMode themeMode;
   final int decimalPrecision;
   final bool hapticFeedback;
   final bool soundEffects;
   final int historySize;
 
   const CalculatorSettings({
-    this.themeMode        = AppThemeMode.dark,  // ← Đổi ở đây
+    this.themeMode        = AppThemeMode.dark,
     this.decimalPrecision = 6,
     this.hapticFeedback   = true,
     this.soundEffects     = false,
@@ -18,7 +18,7 @@ class CalculatorSettings {
   });
 
   CalculatorSettings copyWith({
-    AppThemeMode? themeMode,           // ← Đổi ở đây
+    AppThemeMode? themeMode,
     int? decimalPrecision,
     bool? hapticFeedback,
     bool? soundEffects,

@@ -1,4 +1,3 @@
-// lib/providers/calculator_provider.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
@@ -209,7 +208,6 @@ class CalculatorProvider extends ChangeNotifier {
   Future<void> _loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Tải cài đặt âm thanh 1 lần duy nhất khi mở app
     _isSoundOn = prefs.getBool('sound_effects') ?? true;
 
     List<String>? historyString = prefs.getStringList('calc_history');

@@ -1,7 +1,6 @@
-// lib/utils/expression_parser.dart
 import 'dart:math' as math;
 
-class CalcParser {   // ← Đổi từ ExpressionParser thành CalcParser
+class CalcParser {
 
   static String preProcess(String expression, bool isDegrees) {
     String result = expression

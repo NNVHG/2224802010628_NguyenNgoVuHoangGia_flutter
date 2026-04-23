@@ -22,10 +22,10 @@ class AppColors {
 }
 
 class AppSizes {
-  static const double buttonRadius   = 16.0;  // Bo góc nút (border radius)
-  static const double displayRadius  = 24.0;  // Bo góc vùng hiển thị
-  static const double screenPadding  = 24.0;  // Khoảng cách màn hình
-  static const double buttonSpacing  = 12.0;  // Khoảng cách giữa các nút
-  static const int    animationMs    = 200;   // Thời gian animation nút (milliseconds)
-  static const int    modeAnimMs     = 300;   // Thời gian animation đổi chế độ
+  static const double buttonRadius   = 16.0;
+  static const double displayRadius  = 24.0;
+  static const double screenPadding  = 24.0;
+  static const double buttonSpacing  = 12.0;
+  static const int    animationMs    = 200;
+  static const int    modeAnimMs     = 300;
 }
