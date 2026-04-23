@@ -22,15 +22,6 @@ Một ứng dụng Máy tính Đa năng được phát triển bằng Flutter, h
     * `math_expressions`: Phân tích và giải quyết các chuỗi biểu thức toán học (PEMDAS).
     * `shared_preferences`: Lưu trữ dữ liệu cục bộ (Lịch sử, Cài đặt theme, Âm thanh).
 
-### Cấu trúc thư mục (Folder Structure)
-```text
-lib/
-├── models/         # Định nghĩa cấu trúc dữ liệu (History, Settings, Modes)
-├── providers/      # Chứa logic nghiệp vụ (CalculatorProvider, ThemeProvider)
-├── screens/        # Các màn hình chính (Calculator, Settings, History)
-├── widgets/        # Các UI component có thể tái sử dụng (CalculatorButton)
-└── main.dart       # Điểm khởi chạy của ứng dụng
-
 #### Demo:
 ##Basic
 <img width="409" height="866" alt="image" src="https://github.com/user-attachments/assets/f34b8e0f-a803-4bb8-9764-647d9c547cf9" />
@@ -46,6 +37,8 @@ lib/
 
 ##History
 <img width="414" height="883" alt="image" src="https://github.com/user-attachments/assets/3767d31b-4cfa-4311-90e8-a0ca8a1fe308" />
+
+
 
 
 
