@@ -30,3 +30,5 @@ lib/
 ├── screens/        # Các màn hình chính (Calculator, Settings, History)
 ├── widgets/        # Các UI component có thể tái sử dụng (CalculatorButton)
 └── main.dart       # Điểm khởi chạy của ứng dụng
+
+#### Demo:
