@@ -1,0 +1,37 @@
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+
+class LocationService {
+  Future<bool> checkPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return false;
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return false;
+    }
+
+    if (permission == LocationPermission.deniedForever) return false;
+    return true;
+  }
+
+  Future<Position> getCurrentLocation() async {
+    bool hasPermission = await checkPermission();
+    if (!hasPermission) throw Exception('Quyền truy cập vị trí bị từ chối');
+
+    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  }
+
+  Future<String> getCityName(double lat, double lon) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lon);
+      if (placemarks.isNotEmpty) {
+        return placemarks[0].administrativeArea ?? placemarks[0].locality ?? 'Không xác định';
+      }
+      return 'Không xác định';
+    } catch (e) {
+      throw Exception('Không lấy được tên thành phố từ tọa độ');
+    }
+  }
+}
