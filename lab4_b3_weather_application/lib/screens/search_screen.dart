@@ -44,7 +44,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             const SizedBox(height: 20),
             const Text(
-              'Lưu ý: Bạn có thể nhập tên thành phố không dấu (ví dụ: "Ho Chi Minh") để API tìm kiếm chính xác nhất.',
+              'Lưu ý: Nhập tên thành phố không dấu (ví dụ: "Ho Chi Minh") để API tìm kiếm chính xác nhất.',
               style: TextStyle(color: Colors.grey),
             )
           ],

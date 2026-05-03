@@ -15,7 +15,6 @@ class StorageService {
   Future<WeatherModel?> getCachedWeather() async {
     final prefs = await SharedPreferences.getInstance();
     final weatherJson = prefs.getString(_weatherKey);
-
     if (weatherJson != null) {
       return WeatherModel.fromJson(json.decode(weatherJson));
     }

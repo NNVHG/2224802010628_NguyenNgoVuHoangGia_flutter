@@ -19,7 +19,6 @@ class LocationService {
   Future<Position> getCurrentLocation() async {
     bool hasPermission = await checkPermission();
     if (!hasPermission) throw Exception('Quyền truy cập vị trí bị từ chối');
-
     return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   }
 

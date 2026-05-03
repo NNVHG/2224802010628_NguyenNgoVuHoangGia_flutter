@@ -89,7 +89,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 20),
                   const Text('Dự báo sắp tới', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  // Render danh sách dự báo đơn giản
                   SizedBox(
                     height: 150,
                     child: ListView.builder(

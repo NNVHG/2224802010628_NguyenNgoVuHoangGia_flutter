@@ -8,7 +8,6 @@ class WeatherService {
   final String apiKey;
 
   WeatherService({required this.apiKey});
-
   Future<WeatherModel> getCurrentWeatherByCity(String cityName) async {
     try {
       final url = ApiConfig.buildUrl(ApiConfig.currentWeather, {'q': cityName}, apiKey);

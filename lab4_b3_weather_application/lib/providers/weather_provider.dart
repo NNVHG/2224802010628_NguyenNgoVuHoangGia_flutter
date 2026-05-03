@@ -32,7 +32,6 @@ class WeatherProvider extends ChangeNotifier {
       _currentWeather = await _weatherService.getCurrentWeatherByCity(cityName);
       _forecast = await _weatherService.getForecast(cityName);
       await _storageService.saveWeatherData(_currentWeather!);
-
       _state = WeatherState.loaded;
       _errorMessage = '';
     } catch (e) {
@@ -60,7 +59,6 @@ class WeatherProvider extends ChangeNotifier {
 
       _forecast = await _weatherService.getForecast(cityName);
       await _storageService.saveWeatherData(_currentWeather!);
-
       _state = WeatherState.loaded;
       _errorMessage = '';
     } catch (e) {

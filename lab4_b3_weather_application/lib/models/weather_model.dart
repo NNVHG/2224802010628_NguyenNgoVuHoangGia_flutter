@@ -11,7 +11,8 @@ class WeatherModel {
   final String mainCondition;
   final DateTime dateTime;
 
-  WeatherModel({
+  WeatherModel(
+      {
     required this.cityName,
     required this.country,
     required this.temperature,
@@ -23,7 +24,8 @@ class WeatherModel {
     required this.icon,
     required this.mainCondition,
     required this.dateTime,
-  });
+  }
+  );
 
   factory WeatherModel.fromJson(Map<String, dynamic> json) {
     return WeatherModel(

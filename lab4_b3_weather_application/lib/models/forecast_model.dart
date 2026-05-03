@@ -8,7 +8,8 @@ class ForecastModel {
   final int humidity;
   final double windSpeed;
 
-  ForecastModel({
+  ForecastModel(
+      {
     required this.dateTime,
     required this.temperature,
     required this.description,
@@ -17,7 +18,8 @@ class ForecastModel {
     required this.tempMax,
     required this.humidity,
     required this.windSpeed,
-  });
+  }
+  );
 
   factory ForecastModel.fromJson(Map<String, dynamic> json) {
     return ForecastModel(
