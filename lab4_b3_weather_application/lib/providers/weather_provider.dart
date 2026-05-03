@@ -66,7 +66,7 @@ class WeatherProvider extends ChangeNotifier {
     } catch (e) {
       _state = WeatherState.error;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
-      await loadCachedWeather(); // Tải dữ liệu cũ nếu lỗi mạng
+      await loadCachedWeather();
     }
     notifyListeners();
   }

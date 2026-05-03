@@ -16,7 +16,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final city = _searchController.text.trim();
     if (city.isNotEmpty) {
       context.read<WeatherProvider>().fetchWeatherByCity(city);
-      Navigator.pop(context); // Trở về màn hình chính sau khi tìm
+      Navigator.pop(context);
     }
   }
 
