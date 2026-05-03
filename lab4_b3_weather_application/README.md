@@ -1,5 +1,5 @@
 # 🌤️ Lab 4 B3 - Ứng dụng Thời Tiết (Weather Application)
-
+link video demo: https://drive.google.com/file/d/1j39W07o2AAdoSdz7jX5Jj6z4HdkYE4GA/view?usp=sharing
 ## 🚀 Các chức năng chính (Key Features)
 
 *   📍 **Định vị tự động (Auto-location):** Tự động phát hiện vị trí GPS hiện tại của người dùng để hiển thị thời tiết khu vực đó.
