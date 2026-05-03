@@ -8,14 +8,11 @@ import 'services/storage_service.dart';
 import 'screens/home_screen.dart';
 
 Future<void> main() async {
-  // Đảm bảo Flutter binding đã khởi tạo trước khi load .env
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Tải file .env chứa API Key
   await dotenv.load(fileName: ".env");
 
   runApp(
-    // Thiết lập Provider để quản lý trạng thái toàn cục
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -43,7 +40,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      // Gọi HomeScreen làm màn hình chính
       home: HomeScreen(),
     );
   }
