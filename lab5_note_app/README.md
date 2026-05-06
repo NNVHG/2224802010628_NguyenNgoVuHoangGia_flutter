@@ -22,6 +22,33 @@
 | 💾 Lưu trữ cục bộ | Dữ liệu được lưu bằng SQLite, không cần internet |
 | 🕐 Theo dõi thời gian | Hiển thị thời gian tạo và cập nhật ghi chú |
 
+## Hình ảnh demo ✨
+# Trang chủ 
+<img width="390" height="815" alt="image" src="https://github.com/user-attachments/assets/f4e8b8d5-f443-4a82-a3a4-40473d54186b" />
+
+# Tạo ghi chú
+<img width="388" height="821" alt="image" src="https://github.com/user-attachments/assets/b585a0c0-93d4-44bd-a7d0-01491c36f989" />
+
+<img width="378" height="823" alt="image" src="https://github.com/user-attachments/assets/a223973f-92ea-4c8a-870c-5aca24b79409" />
+
+# Xem xem danh sách
+<img width="386" height="837" alt="image" src="https://github.com/user-attachments/assets/cb052b56-4292-4e7a-a623-08e2c63755c3" />
+
+<img width="389" height="842" alt="image" src="https://github.com/user-attachments/assets/8c86ba02-4917-42c0-9367-6160ceedb588" />
+
+# Thoát app vào lại
+<img width="381" height="826" alt="image" src="https://github.com/user-attachments/assets/3b89a2f7-9f25-489a-b424-d29ffc584f0c" />
+
+<img width="379" height="833" alt="image" src="https://github.com/user-attachments/assets/d9f1dd4a-a0fa-4e8c-90ec-34313eefe24a" />
+
+# Xóa ghi chú
+<img width="381" height="825" alt="image" src="https://github.com/user-attachments/assets/cbac943d-d1fc-464c-9db6-79d513757b23" />
+
+# Sữa ghi chú
+<img width="389" height="822" alt="image" src="https://github.com/user-attachments/assets/022fa17d-4ca6-4931-aece-c64f1f2219c9" />
+
+<img width="394" height="812" alt="image" src="https://github.com/user-attachments/assets/e13593a5-b29b-4025-aa6b-63a6ab715bee" />
+
 ## 🏗️ Kiến trúc dự án
 
 ```
