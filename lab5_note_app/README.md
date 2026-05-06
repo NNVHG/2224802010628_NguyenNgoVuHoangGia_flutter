@@ -1,6 +1,6 @@
 # 📝 Simple Note App
 
-> **Lab 5 — Flutter Mobile Development**  
+> **Lab 5 — Simple Note App**  
 > Sinh viên: Nguyễn Ngô Vũ Hoàng Gia — MSSV: 2224802010628
 
 ---
