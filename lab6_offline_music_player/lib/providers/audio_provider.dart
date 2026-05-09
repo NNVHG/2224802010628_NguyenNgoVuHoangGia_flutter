@@ -1,0 +1,267 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:just_audio/just_audio.dart';
+import '../models/song_model.dart';
+import '../models/playlist_model.dart';
+import '../services/audio_player_service.dart';
+import '../services/storage_service.dart';
+import '../services/playlist_service.dart';
+
+class AudioProvider extends ChangeNotifier {
+  final AudioPlayerService _audioService   = AudioPlayerService();
+  final StorageService     _storageService = StorageService();
+  final PlaylistService    _playlistService = PlaylistService();
+
+  List<MusicTrack>    _songs        = [];
+  List<MusicTrack>    _playlist     = [];
+  List<PlaylistModel> _playlists    = [];
+  int                 _currentIndex = 0;
+  bool                _isShuffle    = false;
+  LoopMode            _loopMode     = LoopMode.off;
+  bool                _isLoading    = false;
+  bool                _isShuffleModeEnabled = false;
+  bool                _isHandlingNext = false;
+  double              _volume       = 1.0;
+
+
+  List<MusicTrack>    get songs         => _songs;
+  List<MusicTrack>    get playlist      => _playlist;
+  List<PlaylistModel> get playlists     => _playlists;
+  int                 get currentIndex  => _currentIndex;
+  bool                get isLoading     => _isLoading;
+  MusicTrack?         get currentSong   =>
+      _playlist.isEmpty ? null : _playlist[_currentIndex];
+  bool                get isShuffle     => _isShuffle;
+  LoopMode            get loopMode      => _loopMode;
+  bool                get isShuffleModeEnabled => _isShuffleModeEnabled;
+  double              get volume        => _volume;
+
+  Stream<Duration>           get positionStream      => _audioService.positionStream;
+  Stream<Duration?>          get durationStream      => _audioService.durationStream;
+  Stream<bool>               get playingStream       => _audioService.playingStream;
+  Stream<PlaybackStateModel> get playbackStateStream => _audioService.playbackStateStream;
+
+  AudioProvider() {
+    _init();
+  }
+
+  Future<void> _init() async {
+    _isLoading = true;
+    notifyListeners();
+
+    _isShuffle = await _storageService.getShuffleState();
+    final repeatIdx = await _storageService.getRepeatMode();
+    _loopMode = LoopMode.values[repeatIdx];
+
+    await _audioService.setLoopMode(_loopMode == LoopMode.one ? LoopMode.one : LoopMode.off);
+
+    final volume = await _storageService.getVolume();
+    _volume = volume;
+    await _audioService.setVolume(volume);
+    _playlists = await _storageService.getPlaylists();
+
+    final saved = await _playlistService.getSavedSongs();
+    final existing = await _playlistService.filterExistingFiles(saved);
+    if (existing.isNotEmpty) {
+      _songs = existing;
+    } else {
+      await _loadAssetsMusic();
+    }
+
+    _audioService.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        if (_loopMode != LoopMode.one) {
+          if (_loopMode == LoopMode.off && _currentIndex == _playlist.length - 1) {
+            _audioService.stop();
+            _audioService.seek(Duration.zero);
+          } else {
+            next();
+          }
+        }
+      }
+    });
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> _loadAssetsMusic() async {
+    try {
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final assetKeys = manifest.listAssets();
+
+      final audioExtensions = {'.mp3', '.m4a', '.wav', '.flac', '.ogg', '.aac'};
+
+      final assetSongs = assetKeys
+          .where((key) {
+        final lower = key.toLowerCase();
+        return lower.startsWith('assets/audio/') &&
+            audioExtensions.any((ext) => lower.endsWith(ext));
+      })
+          .map((assetPath) {
+        final fileName = assetPath.split('/').last;
+        final title = fileName.contains('.')
+            ? fileName.substring(0, fileName.lastIndexOf('.'))
+            : fileName;
+        return MusicTrack(
+          id:       assetPath.hashCode.toString(),
+          title:    title,
+          artist:   'Sample Artist',
+          filePath: assetPath,
+          album:    'Sample Songs',
+        );
+      })
+          .toList();
+
+      if (assetSongs.isNotEmpty) {
+        _songs = assetSongs;
+        await _playlistService.saveSongs(_songs);
+        print('Loaded ${assetSongs.length} songs from assets');
+      }
+    } catch (e) {
+      print('Error loading assets: $e');
+    }
+  }
+
+  Future<void> scanAndAddSongs() async {
+    _isLoading = true;
+    notifyListeners();
+
+    final found = await _playlistService.scanMusicDirectory();
+    final existingPaths = _songs.map((s) => s.filePath).toSet();
+    final newSongs = found
+        .where((s) => !existingPaths.contains(s.filePath))
+        .toList();
+
+    _songs = [..._songs, ...newSongs];
+    await _playlistService.saveSongs(_songs);
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> removeSong(String songId) async {
+    _songs = await _playlistService.removeSong(_songs, songId);
+    notifyListeners();
+  }
+
+  Future<void> setPlaylist(List<MusicTrack> songs, int startIndex) async {
+    _playlist     = songs;
+    _currentIndex = startIndex;
+    await _playSongAtIndex(_currentIndex);
+    notifyListeners();
+  }
+
+  Future<void> _playSongAtIndex(int index) async {
+    if (index < 0 || index >= _playlist.length) return;
+    _currentIndex = index;
+    final song = _playlist[index];
+
+    if (song.filePath.startsWith('assets/')) {
+      await _audioService.loadAsset(song.filePath);
+    } else {
+      await _audioService.loadAudio(song.filePath);
+    }
+
+    await _audioService.play();
+    await _storageService.saveLastPlayed(song.id);
+    notifyListeners();
+  }
+
+  Future<void> playPause() async {
+    if (_audioService.isPlaying) {
+      await _audioService.pause();
+    } else {
+      await _audioService.play();
+    }
+    notifyListeners();
+  }
+
+  Future<void> next() async {
+    if (_playlist.isEmpty) return;
+    _currentIndex = _isShuffle
+        ? _randomIndex()
+        : (_currentIndex + 1) % _playlist.length;
+    await _playSongAtIndex(_currentIndex);
+  }
+
+  Future<void> previous() async {
+    if (_playlist.isEmpty) return;
+    if (_audioService.currentPosition.inSeconds > 3) {
+      await _audioService.seek(Duration.zero);
+    } else {
+      _currentIndex = _isShuffle
+          ? _randomIndex()
+          : (_currentIndex - 1 + _playlist.length) % _playlist.length;
+      await _playSongAtIndex(_currentIndex);
+    }
+  }
+
+  Future<void> seek(Duration pos) async => await _audioService.seek(pos);
+
+  Future<void> toggleShuffle() async {
+    _isShuffle = !_isShuffle;
+    await _storageService.saveShuffleState(_isShuffle);
+    notifyListeners();
+  }
+
+  Future<void> toggleRepeat() async {
+    switch (_loopMode) {
+      case LoopMode.off: _loopMode = LoopMode.all; break;
+      case LoopMode.all: _loopMode = LoopMode.one;  break;
+      case LoopMode.one: _loopMode = LoopMode.off;  break;
+    }
+
+    await _audioService.setLoopMode(_loopMode == LoopMode.one ? LoopMode.one : LoopMode.off);
+
+    await _storageService.saveRepeatMode(_loopMode.index);
+    notifyListeners();
+  }
+
+  Future<void> setVolume(double v) async {
+    _volume = v;
+    await _audioService.setVolume(v);
+    await _storageService.saveVolume(v);
+    notifyListeners();
+  }
+
+  Future<void> createPlaylist(String name) async {
+    _playlists.add(PlaylistModel(
+      id:        DateTime.now().millisecondsSinceEpoch.toString(),
+      name:      name,
+      songIds:   [],
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ));
+    await _storageService.savePlaylists(_playlists);
+    notifyListeners();
+  }
+
+  Future<void> addSongToPlaylist(String playlistId, String songId) async {
+    final idx = _playlists.indexWhere((p) => p.id == playlistId);
+    if (idx == -1) return;
+    if (!_playlists[idx].songIds.contains(songId)) {
+      final updated = _playlists[idx].copyWith(
+        songIds: [..._playlists[idx].songIds, songId],
+      );
+      _playlists[idx] = updated;
+      await _storageService.savePlaylists(_playlists);
+      notifyListeners();
+    }
+  }
+
+  Future<void> deletePlaylist(String id) async {
+    _playlists.removeWhere((p) => p.id == id);
+    await _storageService.savePlaylists(_playlists);
+    notifyListeners();
+  }
+
+  int _randomIndex() =>
+      DateTime.now().millisecondsSinceEpoch % _playlist.length;
+
+  @override
+  void dispose() {
+    _audioService.dispose();
+    super.dispose();
+  }
+}
