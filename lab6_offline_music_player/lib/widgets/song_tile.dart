@@ -150,16 +150,15 @@ class SongTile extends StatelessWidget {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.cardBg,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12), // Bo góc cho hộp thoại đẹp hơn
+          borderRadius: BorderRadius.circular(12),
         ),
         title: const Text('Chọn playlist',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: SizedBox(
           width: double.maxFinite,
-          // Bọc trong ConstrainedBox để giới hạn chiều cao tối đa
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.5, // Chiều cao tối đa bằng 50% màn hình
+              maxHeight: MediaQuery.of(context).size.height * 0.5,
             ),
             child: ListView.builder(
               shrinkWrap: true,

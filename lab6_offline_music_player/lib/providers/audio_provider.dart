@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:perfect_volume_control/perfect_volume_control.dart';
 import '../models/song_model.dart';
 import '../models/playlist_model.dart';
 import '../services/audio_player_service.dart';
@@ -19,10 +20,9 @@ class AudioProvider extends ChangeNotifier {
   bool                _isShuffle    = false;
   LoopMode            _loopMode     = LoopMode.off;
   bool                _isLoading    = false;
-  bool                _isShuffleModeEnabled = false;
   bool                _isHandlingNext = false;
+  bool                _isVolumeSyncEnabled = true;
   double              _volume       = 1.0;
-
 
   List<MusicTrack>    get songs         => _songs;
   List<MusicTrack>    get playlist      => _playlist;
@@ -33,8 +33,8 @@ class AudioProvider extends ChangeNotifier {
       _playlist.isEmpty ? null : _playlist[_currentIndex];
   bool                get isShuffle     => _isShuffle;
   LoopMode            get loopMode      => _loopMode;
-  bool                get isShuffleModeEnabled => _isShuffleModeEnabled;
   double              get volume        => _volume;
+  bool                get isVolumeSyncEnabled => _isVolumeSyncEnabled;
 
   Stream<Duration>           get positionStream      => _audioService.positionStream;
   Stream<Duration?>          get durationStream      => _audioService.durationStream;
@@ -53,11 +53,26 @@ class AudioProvider extends ChangeNotifier {
     final repeatIdx = await _storageService.getRepeatMode();
     _loopMode = LoopMode.values[repeatIdx];
 
+    _isVolumeSyncEnabled = await _storageService.getVolumeSyncState();
+
     await _audioService.setLoopMode(_loopMode == LoopMode.one ? LoopMode.one : LoopMode.off);
 
-    final volume = await _storageService.getVolume();
-    _volume = volume;
-    await _audioService.setVolume(volume);
+    PerfectVolumeControl.hideUI = false;
+    if (_isVolumeSyncEnabled) {
+      _volume = await PerfectVolumeControl.getVolume();
+    } else {
+      _volume = await _storageService.getVolume();
+    }
+    await _audioService.setVolume(_volume);
+
+    PerfectVolumeControl.stream.listen((newVolume) {
+      if (_isVolumeSyncEnabled && _volume != newVolume) {
+        _volume = newVolume;
+        _audioService.setVolume(newVolume);
+        notifyListeners();
+      }
+    });
+
     _playlists = await _storageService.getPlaylists();
 
     final saved = await _playlistService.getSavedSongs();
@@ -68,16 +83,22 @@ class AudioProvider extends ChangeNotifier {
       await _loadAssetsMusic();
     }
 
-    _audioService.playerStateStream.listen((state) {
+    _audioService.playerStateStream.listen((state) async {
       if (state.processingState == ProcessingState.completed) {
+        if (_isHandlingNext) return;
+        _isHandlingNext = true;
+
         if (_loopMode != LoopMode.one) {
           if (_loopMode == LoopMode.off && _currentIndex == _playlist.length - 1) {
             _audioService.stop();
             _audioService.seek(Duration.zero);
           } else {
-            next();
+            await next();
           }
         }
+
+        await Future.delayed(const Duration(milliseconds: 500));
+        _isHandlingNext = false;
       }
     });
 
@@ -221,7 +242,23 @@ class AudioProvider extends ChangeNotifier {
   Future<void> setVolume(double v) async {
     _volume = v;
     await _audioService.setVolume(v);
+
+    if (_isVolumeSyncEnabled) {
+      await PerfectVolumeControl.setVolume(v);
+    }
+
     await _storageService.saveVolume(v);
+    notifyListeners();
+  }
+
+  Future<void> toggleVolumeSync(bool value) async {
+    _isVolumeSyncEnabled = value;
+    await _storageService.saveVolumeSyncState(value);
+
+    if (value) {
+      _volume = await PerfectVolumeControl.getVolume();
+      await _audioService.setVolume(_volume);
+    }
     notifyListeners();
   }
 

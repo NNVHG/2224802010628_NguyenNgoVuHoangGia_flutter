@@ -8,6 +8,7 @@ class StorageService {
   static const String _shuffleKey    = 'shuffle_enabled';
   static const String _repeatKey     = 'repeat_mode';
   static const String _volumeKey     = 'volume';
+  static const String _volumeSyncKey = 'volume_sync';
 
   Future<void> savePlaylists(List<PlaylistModel> playlists) async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,4 +34,6 @@ class StorageService {
   Future<int>     getRepeatMode()              async => (await SharedPreferences.getInstance()).getInt(_repeatKey) ?? 0;
   Future<void>    saveVolume(double v)         async => (await SharedPreferences.getInstance()).setDouble(_volumeKey, v);
   Future<double>  getVolume()                  async => (await SharedPreferences.getInstance()).getDouble(_volumeKey) ?? 1.0;
+  Future<void>    saveVolumeSyncState(bool on) async => (await SharedPreferences.getInstance()).setBool(_volumeSyncKey, on);
+  Future<bool>    getVolumeSyncState()         async => (await SharedPreferences.getInstance()).getBool(_volumeSyncKey) ?? true;
 }
