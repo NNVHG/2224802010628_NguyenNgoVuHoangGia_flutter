@@ -13,9 +13,11 @@ class AudioProvider extends ChangeNotifier {
   final StorageService     _storageService = StorageService();
   final PlaylistService    _playlistService = PlaylistService();
 
-  List<MusicTrack>    _songs        = [];
-  List<MusicTrack>    _playlist     = [];
-  List<PlaylistModel> _playlists    = [];
+  List<MusicTrack>    _songs              = [];
+  List<MusicTrack>    _playlist           = [];
+  List<PlaylistModel> _playlists          = [];
+  List<MusicTrack>    _recentlyPlayed     = [];
+
   int                 _currentIndex = 0;
   bool                _isShuffle    = false;
   LoopMode            _loopMode     = LoopMode.off;
@@ -27,6 +29,7 @@ class AudioProvider extends ChangeNotifier {
   List<MusicTrack>    get songs         => _songs;
   List<MusicTrack>    get playlist      => _playlist;
   List<PlaylistModel> get playlists     => _playlists;
+  List<MusicTrack>    get recentlyPlayed  => _recentlyPlayed;
   int                 get currentIndex  => _currentIndex;
   bool                get isLoading     => _isLoading;
   MusicTrack?         get currentSong   =>
@@ -81,6 +84,16 @@ class AudioProvider extends ChangeNotifier {
       _songs = existing;
     } else {
       await _loadAssetsMusic();
+    }
+
+    final recentIds = await _storageService.getRecentlyPlayed();
+    _recentlyPlayed = [];
+    for (String id in recentIds) {
+      try {
+        final song = _songs.firstWhere((s) => s.id == id);
+        _recentlyPlayed.add(song);
+      } catch (e) {
+      }
     }
 
     _audioService.playerStateStream.listen((state) async {
@@ -185,6 +198,14 @@ class AudioProvider extends ChangeNotifier {
     }
 
     await _audioService.play();
+
+    _recentlyPlayed.removeWhere((s) => s.id == song.id);
+    _recentlyPlayed.insert(0, song);
+    if (_recentlyPlayed.length > 15) {
+      _recentlyPlayed.removeLast();
+    }
+    await _storageService.saveRecentlyPlayed(_recentlyPlayed.map((s) => s.id).toList());
+
     await _storageService.saveLastPlayed(song.id);
     notifyListeners();
   }

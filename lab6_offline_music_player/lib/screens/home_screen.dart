@@ -49,10 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.queue_music, color: Colors.white),
-                      tooltip: 'Playlist',
                       onPressed: () => Navigator.push(context,
-                          MaterialPageRoute(
-                              builder: (_) => const PlaylistScreen())),
+                          MaterialPageRoute(builder: (_) => const PlaylistScreen())),
                     ),
                     IconButton(
                       icon: const Icon(Icons.settings, color: Colors.white),
@@ -66,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         autofocus: true,
                         style: const TextStyle(color: Colors.white),
                         decoration: const InputDecoration(
-                          hintText: 'Tìm bài hát...',
+                          hintText: 'Tìm bài hát, nghệ sĩ...',
                           hintStyle: TextStyle(color: AppColors.textGrey),
                           border: InputBorder.none,
                         ),
@@ -92,9 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Consumer<AudioProvider>(
                 builder: (context, provider, _) {
                   if (provider.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
-                    );
+                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                   }
 
                   List<MusicTrack> displaySongs = _searchQuery.isEmpty
@@ -105,118 +101,145 @@ class _HomeScreenState extends State<HomeScreen> {
                         s.artist.toLowerCase().contains(q);
                   }).toList();
 
-                  if (_sortOption == 'A-Z') {
+                  if (_sortOption == 'Tên (A-Z)') {
                     displaySongs.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
-                  } else if (_sortOption == 'Z-A') {
-                    displaySongs.sort((a, b) => b.title.toLowerCase().compareTo(a.title.toLowerCase()));
+                  } else if (_sortOption == 'Nghệ sĩ (A-Z)') {
+                    displaySongs.sort((a, b) => a.artist.toLowerCase().compareTo(b.artist.toLowerCase()));
+                  } else if (_sortOption == 'Album (A-Z)') {
+                    displaySongs.sort((a, b) => (a.album ?? '').toLowerCase().compareTo((b.album ?? '').toLowerCase()));
                   }
 
                   if (displaySongs.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.music_note, size: 80, color: Colors.grey),
-                          const SizedBox(height: 16),
-                          const Text('Không tìm thấy bài hát nào',
-                              style: TextStyle(color: Colors.white, fontSize: 20)),
-                          const SizedBox(height: 8),
-                          if (_searchQuery.isEmpty) ...[
-                            const Text('Vuốt xuống để tải lại',
-                                style: TextStyle(color: AppColors.textGrey)),
-                          ]
-                        ],
-                      ),
+                    return const Center(
+                      child: Text('Không tìm thấy bài hát nào',
+                          style: TextStyle(color: Colors.white, fontSize: 18)),
                     );
                   }
 
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Tổng cộng: ${displaySongs.length} bài hát',
-                              style: const TextStyle(
-                                  color: AppColors.textGrey,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            PopupMenuButton<String>(
-                              icon: const Icon(Icons.sort, color: Colors.white),
-                              color: AppColors.cardBg,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              tooltip: 'Sắp xếp',
-                              onSelected: (value) {
-                                setState(() {
-                                  _sortOption = value;
-                                });
-                              },
-                              itemBuilder: (context) => [
-                                PopupMenuItem(
-                                  value: 'Mặc định',
-                                  child: Text('Mặc định',
-                                      style: TextStyle(color: _sortOption == 'Mặc định' ? AppColors.primary : Colors.white)),
-                                ),
-                                PopupMenuItem(
-                                  value: 'A-Z',
-                                  child: Text('Tên: A - Z',
-                                      style: TextStyle(color: _sortOption == 'A-Z' ? AppColors.primary : Colors.white)),
-                                ),
-                                PopupMenuItem(
-                                  value: 'Z-A',
-                                  child: Text('Tên: Z - A',
-                                      style: TextStyle(color: _sortOption == 'Z-A' ? AppColors.primary : Colors.white)),
-                                ),
-                              ],
-                            ),
-                          ],
+                  return CustomScrollView(
+                    slivers: [
+                      if (!_isSearching && provider.recentlyPlayed.isNotEmpty) ...[
+                        const SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
+                            child: Text('⏱ Nghe gần đây',
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                          ),
                         ),
-                      ),
+                        SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: 140,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              itemCount: provider.recentlyPlayed.length,
+                              itemBuilder: (context, index) {
+                                final song = provider.recentlyPlayed[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    provider.setPlaylist(provider.recentlyPlayed, index);
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => const NowPlayingScreen()));
+                                  },
+                                  child: Container(
+                                    width: 110,
+                                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: 110, height: 110,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.cardBg,
+                                            borderRadius: BorderRadius.circular(12),
+                                            image: song.albumArt != null
+                                                ? DecorationImage(image: AssetImage(song.albumArt!), fit: BoxFit.cover)
+                                                : null,
+                                          ),
+                                          child: song.albumArt == null
+                                              ? const Icon(Icons.music_note, color: AppColors.primary, size: 40) : null,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(song.title,
+                                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                      ],
 
-                      Expanded(
-                        child: RefreshIndicator(
-                          color: AppColors.primary,
-                          onRefresh: () async => await provider.scanAndAddSongs(),
-                          child: ListView.builder(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            itemCount: displaySongs.length,
-                            itemBuilder: (context, index) {
-                              final song = displaySongs[index];
-                              final isCurrent = provider.currentSong?.id == song.id;
-
-                              return SongTile(
-                                song: song,
-                                isPlaying: isCurrent,
-                                onTap: () {
-                                  provider.setPlaylist(displaySongs, index);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => const NowPlayingScreen()),
-                                  );
-                                },
-                              );
-                            },
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Tất cả: ${displaySongs.length} bài hát',
+                                style: const TextStyle(color: AppColors.textGrey, fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.sort, color: Colors.white),
+                                color: AppColors.cardBg,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                onSelected: (value) => setState(() => _sortOption = value),
+                                itemBuilder: (context) => [
+                                  _buildSortItem('Mặc định'),
+                                  _buildSortItem('Tên (A-Z)'),
+                                  _buildSortItem('Nghệ sĩ (A-Z)'),
+                                  _buildSortItem('Album (A-Z)'),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),
+
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                            final song = displaySongs[index];
+                            final isCurrent = provider.currentSong?.id == song.id;
+                            return SongTile(
+                              song: song,
+                              isPlaying: isCurrent,
+                              onTap: () {
+                                provider.setPlaylist(displaySongs, index);
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => const NowPlayingScreen()));
+                              },
+                            );
+                          },
+                          childCount: displaySongs.length,
+                        ),
+                      ),
+                      const SliverToBoxAdapter(child: SizedBox(height: 80)),
                     ],
                   );
                 },
               ),
             ),
-
-            Consumer<AudioProvider>(
-              builder: (_, provider, __) => provider.currentSong != null
-                  ? const MiniPlayer()
-                  : const SizedBox.shrink(),
-            ),
           ],
         ),
       ),
+      bottomSheet: Consumer<AudioProvider>(
+        builder: (_, provider, __) => provider.currentSong != null
+            ? const MiniPlayer()
+            : const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _buildSortItem(String value) {
+    return PopupMenuItem(
+      value: value,
+      child: Text(value,
+          style: TextStyle(color: _sortOption == value ? AppColors.primary : Colors.white,
+              fontWeight: _sortOption == value ? FontWeight.bold : FontWeight.normal)),
     );
   }
 
