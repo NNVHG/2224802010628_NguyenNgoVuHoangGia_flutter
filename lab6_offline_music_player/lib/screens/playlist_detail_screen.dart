@@ -42,11 +42,9 @@ class PlaylistDetailScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.music_off, size: 80, color: Colors.grey),
                         SizedBox(height: 16),
-                        Text('Playlist trống',
-                            style: TextStyle(color: Colors.white, fontSize: 18)),
+                        Text('Playlist trống', style: TextStyle(color: Colors.white, fontSize: 18)),
                         SizedBox(height: 8),
-                        Text('Hãy thêm bài hát từ màn hình chính',
-                            style: TextStyle(color: Colors.grey)),
+                        Text('Hãy thêm bài hát từ màn hình chính', style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   );
@@ -59,11 +57,7 @@ class PlaylistDetailScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 16.0, top: 8.0),
                       child: Text(
                         'Tổng cộng: ${playlistSongs.length} bài hát',
-                        style: const TextStyle(
-                          color: AppColors.textGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: const TextStyle(color: AppColors.textGrey, fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                     ),
                     Padding(
@@ -73,22 +67,13 @@ class PlaylistDetailScreen extends StatelessWidget {
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                         ),
                         icon: const Icon(Icons.play_arrow, size: 28),
-                        label: const Text(
-                          'Phát danh sách',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
+                        label: const Text('Phát danh sách', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         onPressed: () {
                           provider.setPlaylist(playlistSongs, 0);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const NowPlayingScreen()),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const NowPlayingScreen()));
                         },
                       ),
                     ),
@@ -100,17 +85,29 @@ class PlaylistDetailScreen extends StatelessWidget {
                           final song = playlistSongs[index];
                           final isCurrent = provider.currentSong?.id == song.id;
 
-                          return SongTile(
-                            song: song,
-                            isPlaying: isCurrent,
-                            onTap: () {
-                              provider.setPlaylist(playlistSongs, index);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const NowPlayingScreen()),
+                          return Dismissible(
+                            key: Key('${playlist.id}_${song.id}'),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20.0),
+                              color: Colors.redAccent,
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            onDismissed: (direction) {
+                              provider.removeSongFromPlaylist(playlist.id, song.id);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Đã xóa khỏi playlist')),
                               );
                             },
+                            child: SongTile(
+                              song: song,
+                              isPlaying: isCurrent,
+                              onTap: () {
+                                provider.setPlaylist(playlistSongs, index);
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => const NowPlayingScreen()));
+                              },
+                            ),
                           );
                         },
                       ),

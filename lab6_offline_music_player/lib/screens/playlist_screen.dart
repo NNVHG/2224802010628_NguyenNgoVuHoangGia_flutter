@@ -59,8 +59,7 @@ class PlaylistScreen extends StatelessWidget {
                     final pl = provider.playlists[index];
                     return ListTile(
                       leading: Container(
-                        width: 50,
-                        height: 50,
+                        width: 50, height: 50,
                         decoration: BoxDecoration(
                           color: AppColors.cardBg,
                           borderRadius: BorderRadius.circular(4),
@@ -82,11 +81,7 @@ class PlaylistScreen extends StatelessWidget {
                                 .toList();
                             if (playlistSongs.isNotEmpty) {
                               provider.setPlaylist(playlistSongs, 0);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const NowPlayingScreen()),
-                              );
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const NowPlayingScreen()));
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Playlist hiện đang trống')),
@@ -94,6 +89,9 @@ class PlaylistScreen extends StatelessWidget {
                             }
                           } else if (value == 2) {
                             _showMergeDialog(context, pl, provider);
+                          } else if (value == 4) {
+                            // [MỚI] Gọi hàm đổi tên
+                            _showRenameDialog(context, pl, provider);
                           } else if (value == 3) {
                             provider.deletePlaylist(pl.id);
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -104,42 +102,38 @@ class PlaylistScreen extends StatelessWidget {
                         itemBuilder: (context) => [
                           const PopupMenuItem(
                             value: 1,
-                            child: Row(
-                              children: [
-                                Icon(Icons.play_arrow, color: Colors.white),
-                                SizedBox(width: 12),
-                                Text('Phát playlist', style: TextStyle(color: Colors.white)),
-                              ],
-                            ),
+                            child: Row(children: [
+                              Icon(Icons.play_arrow, color: Colors.white), SizedBox(width: 12),
+                              Text('Phát playlist', style: TextStyle(color: Colors.white)),
+                            ]),
                           ),
                           const PopupMenuItem(
                             value: 2,
-                            child: Row(
-                              children: [
-                                Icon(Icons.call_merge, color: Colors.white),
-                                SizedBox(width: 12),
-                                Text('Gộp playlist', style: TextStyle(color: Colors.white)),
-                              ],
-                            ),
+                            child: Row(children: [
+                              Icon(Icons.call_merge, color: Colors.white), SizedBox(width: 12),
+                              Text('Gộp playlist', style: TextStyle(color: Colors.white)),
+                            ]),
+                          ),
+                          const PopupMenuItem(
+                            value: 4,
+                            child: Row(children: [
+                              Icon(Icons.edit, color: Colors.white), SizedBox(width: 12),
+                              Text('Đổi tên', style: TextStyle(color: Colors.white)),
+                            ]),
                           ),
                           const PopupMenuItem(
                             value: 3,
-                            child: Row(
-                              children: [
-                                Icon(Icons.delete_outline, color: Colors.redAccent),
-                                SizedBox(width: 12),
-                                Text('Xóa playlist', style: TextStyle(color: Colors.redAccent)),
-                              ],
-                            ),
+                            child: Row(children: [
+                              Icon(Icons.delete_outline, color: Colors.redAccent), SizedBox(width: 12),
+                              Text('Xóa playlist', style: TextStyle(color: Colors.redAccent)),
+                            ]),
                           ),
                         ],
                       ),
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => PlaylistDetailScreen(playlist: pl),
-                          ),
+                          MaterialPageRoute(builder: (_) => PlaylistDetailScreen(playlist: pl)),
                         );
                       },
                     );
@@ -164,17 +158,14 @@ class PlaylistScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.cardBg,
-        title: const Text('Tạo playlist mới',
-            style: TextStyle(color: Colors.white)),
+        title: const Text('Tạo playlist mới', style: TextStyle(color: Colors.white)),
         content: TextField(
           controller: controller,
           style: const TextStyle(color: Colors.white),
           decoration: const InputDecoration(
             hintText: 'Tên playlist...',
             hintStyle: TextStyle(color: AppColors.textGrey),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColors.primary),
-            ),
+            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
           ),
         ),
         actions: [
@@ -185,9 +176,7 @@ class PlaylistScreen extends StatelessWidget {
           TextButton(
             onPressed: () {
               if (controller.text.trim().isNotEmpty) {
-                context
-                    .read<AudioProvider>()
-                    .createPlaylist(controller.text.trim());
+                context.read<AudioProvider>().createPlaylist(controller.text.trim());
                 Navigator.pop(ctx);
               }
             },
@@ -198,13 +187,46 @@ class PlaylistScreen extends StatelessWidget {
     );
   }
 
+  void _showRenameDialog(BuildContext context, PlaylistModel playlist, AudioProvider provider) {
+    final controller = TextEditingController(text: playlist.name);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardBg,
+        title: const Text('Đổi tên playlist', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'Tên mới...',
+            hintStyle: TextStyle(color: AppColors.textGrey),
+            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy', style: TextStyle(color: AppColors.textGrey)),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                provider.renamePlaylist(playlist.id, controller.text.trim());
+                Navigator.pop(ctx);
+              }
+            },
+            child: const Text('Lưu', style: TextStyle(color: AppColors.primary)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showMergeDialog(BuildContext context, PlaylistModel currentPlaylist, AudioProvider provider) {
     final otherPlaylists = provider.playlists.where((p) => p.id != currentPlaylist.id).toList();
 
     if (otherPlaylists.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không có playlist khác để gộp')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Không có playlist khác để gộp')));
       return;
     }
 
@@ -213,14 +235,11 @@ class PlaylistScreen extends StatelessWidget {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.cardBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Gộp vào playlist...',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('Gộp vào playlist...', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: SizedBox(
           width: double.maxFinite,
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.4,
-            ),
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
             child: ListView.builder(
               shrinkWrap: true,
               itemCount: otherPlaylists.length,

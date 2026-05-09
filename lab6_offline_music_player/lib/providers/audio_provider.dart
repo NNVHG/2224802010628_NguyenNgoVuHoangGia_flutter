@@ -7,6 +7,7 @@ import '../models/playlist_model.dart';
 import '../services/audio_player_service.dart';
 import '../services/storage_service.dart';
 import '../services/playlist_service.dart';
+import 'package:flutter/foundation.dart';
 
 class AudioProvider extends ChangeNotifier {
   final AudioPlayerService _audioService   = AudioPlayerService();
@@ -93,6 +94,7 @@ class AudioProvider extends ChangeNotifier {
         final song = _songs.firstWhere((s) => s.id == id);
         _recentlyPlayed.add(song);
       } catch (e) {
+        debugPrint('Bỏ qua bài hát không tồn tại: $id');
       }
     }
 
@@ -150,10 +152,10 @@ class AudioProvider extends ChangeNotifier {
       if (assetSongs.isNotEmpty) {
         _songs = assetSongs;
         await _playlistService.saveSongs(_songs);
-        print('Loaded ${assetSongs.length} songs from assets');
+        debugPrint('Loaded ${assetSongs.length} songs from assets');
       }
     } catch (e) {
-      print('Error loading assets: $e');
+      debugPrint('Error loading assets: $e');
     }
   }
 
@@ -310,6 +312,33 @@ class AudioProvider extends ChangeNotifier {
 
   Future<void> deletePlaylist(String id) async {
     _playlists.removeWhere((p) => p.id == id);
+    await _storageService.savePlaylists(_playlists);
+    notifyListeners();
+  }
+
+  Future<void> renamePlaylist(String id, String newName) async {
+    final idx = _playlists.indexWhere((p) => p.id == id);
+    if (idx == -1) return;
+
+    final updated = _playlists[idx].copyWith(
+        name: newName,
+    );
+    _playlists[idx] = updated;
+    await _storageService.savePlaylists(_playlists);
+    notifyListeners();
+  }
+
+  Future<void> removeSongFromPlaylist(String playlistId, String songId) async {
+    final idx = _playlists.indexWhere((p) => p.id == playlistId);
+    if (idx == -1) return;
+
+    final updatedSongIds = List<String>.from(_playlists[idx].songIds);
+    updatedSongIds.remove(songId);
+
+    final updated = _playlists[idx].copyWith(
+        songIds: updatedSongIds,
+    );
+    _playlists[idx] = updated;
     await _storageService.savePlaylists(_playlists);
     notifyListeners();
   }
