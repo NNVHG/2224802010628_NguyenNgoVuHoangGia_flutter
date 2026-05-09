@@ -6,6 +6,7 @@ import '../services/audio_player_service.dart';
 import '../widgets/player_controls.dart';
 import '../widgets/progress_bar.dart';
 import '../utils/constants.dart';
+import '../widgets/artwork_widget.dart';
 
 class NowPlayingScreen extends StatelessWidget {
   const NowPlayingScreen({super.key});
@@ -56,31 +57,10 @@ class NowPlayingScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width:  MediaQuery.of(context).size.width * 0.7,
-                          height: MediaQuery.of(context).size.width * 0.7,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color:      Colors.black.withOpacity(0.5),
-                                blurRadius: 20,
-                                offset:     const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: song.albumArt != null
-                                ? Image.file(File(song.albumArt!),
-                                fit: BoxFit.cover)
-                                : Container(
-                              color: AppColors.cardBg,
-                              child: const Icon(Icons.music_note,
-                                  size: 100,
-                                  color: AppColors.textGrey),
-                            ),
-                          ),
+                        ArtworkWidget(
+                          artworkId: song.albumArt,
+                          size: MediaQuery.of(context).size.width * 0.7,
+                          borderRadius: 8.0,
                         ),
 
                         const SizedBox(height: 20),

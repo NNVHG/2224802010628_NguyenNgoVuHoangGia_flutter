@@ -2,47 +2,36 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/song_model.dart';
+import 'package:on_audio_query/on_audio_query.dart' as oq;
 
 class PlaylistService {
   static const String _songsKey = 'saved_songs';
+  final oq.OnAudioQuery _audioQuery = oq.OnAudioQuery();
 
   Future<List<MusicTrack>> scanMusicDirectory() async {
     final List<MusicTrack> tracks = [];
+    bool hasPermission = await _audioQuery.checkAndRequest(retryRequest: true);
+    if (!hasPermission) return [];
 
-    final List<String> musicPaths = [
-      '/storage/emulated/0/Music',
-      '/storage/emulated/0/Download',
-      '/storage/emulated/0/Downloads',
-      '/storage/emulated/0/DCIM',
-      '/sdcard/Music',
-      '/sdcard/Download',
-    ];
+    List<oq.SongModel> songs = await _audioQuery.querySongs(
+      sortType: null,
+      orderType: oq.OrderType.ASC_OR_SMALLER,
+      uriType: oq.UriType.EXTERNAL,
+      ignoreCase: true,
+    );
 
-    const supportedExtensions = {
-      '.mp3', '.m4a', '.wav', '.flac', '.ogg', '.aac'
-    };
-
-    for (final path in musicPaths) {
-      final dir = Directory(path);
-      if (!await dir.exists()) continue;
-
-      try {
-        await for (final entity in dir.list(recursive: true)) {
-          if (entity is File) {
-            final lower = entity.path.toLowerCase();
-            final ext   = lower.contains('.')
-                ? '.${lower.split('.').last}'
-                : '';
-            if (supportedExtensions.contains(ext)) {
-              tracks.add(MusicTrack.fromFilePath(entity.path));
-            }
-          }
-        }
-      } catch (_) {
-        continue;
+    for (var song in songs) {
+      if (song.isMusic == true && (song.duration ?? 0) > 10000) {
+        tracks.add(MusicTrack(
+          id: song.data.hashCode.toString(),
+          title: song.title,
+          artist: song.artist == '<unknown>' ? 'Unknown Artist' : (song.artist ?? 'Unknown Artist'),
+          album: song.album == '<unknown>' ? 'Unknown Album' : song.album,
+          filePath: song.data,
+          albumArt: song.id.toString(),
+        ));
       }
     }
-
     return tracks;
   }
 

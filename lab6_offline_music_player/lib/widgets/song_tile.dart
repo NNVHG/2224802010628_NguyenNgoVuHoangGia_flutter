@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/song_model.dart';
 import '../providers/audio_provider.dart';
 import '../utils/constants.dart';
+import 'artwork_widget.dart';
 
 class SongTile extends StatelessWidget {
   final MusicTrack   song;
@@ -47,19 +48,10 @@ class SongTile extends StatelessWidget {
   }
 
   Widget _buildAlbumArt() {
-    return Container(
-      width:  50,
-      height: 50,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        color: AppColors.cardBg,
-      ),
-      child: song.albumArt != null
-          ? ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: Image.file(File(song.albumArt!), fit: BoxFit.cover),
-      )
-          : const Icon(Icons.music_note, color: AppColors.textGrey),
+    return ArtworkWidget(
+      artworkId: song.albumArt,
+      size: 50.0,
+      borderRadius: 4.0,
     );
   }
 

@@ -5,6 +5,7 @@ import '../providers/audio_provider.dart';
 import '../services/audio_player_service.dart';
 import '../utils/constants.dart';
 import '../screens/now_playing_screen.dart';
+import 'artwork_widget.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -53,22 +54,10 @@ class MiniPlayer extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       children: [
-                        Container(
-                          width:  50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            color: Colors.grey[800],
-                          ),
-                          child: song.albumArt != null
-                              ? ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: Image.file(
-                                File(song.albumArt!),
-                                fit: BoxFit.cover),
-                          )
-                              : const Icon(Icons.music_note,
-                              color: AppColors.textGrey),
+                        ArtworkWidget(
+                          artworkId: song.albumArt,
+                          size: 50.0,
+                          borderRadius: 4.0,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
