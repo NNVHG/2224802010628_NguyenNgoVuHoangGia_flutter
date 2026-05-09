@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:just_audio_background/just_audio_background.dart';
+import '../models/song_model.dart';
 
 class PlaybackStateModel {
   final Duration position;
@@ -45,17 +48,36 @@ class AudioPlayerService {
     );
   }
 
-  Future<void> loadAudio(String filePath) async {
+  Future<void> loadAudio(MusicTrack song) async {
     try {
-      await _player.setFilePath(filePath);
+      final audioSource = AudioSource.uri(
+        Uri.file(song.filePath),
+        tag: MediaItem(
+          id: song.id,
+          album: song.album ?? 'Unknown Album',
+          title: song.title,
+          artist: song.artist,
+          artUri: song.albumArt != null ? Uri.file(song.albumArt!) : null,
+        ),
+      );
+      await _player.setAudioSource(audioSource);
     } catch (e) {
       throw Exception('Lỗi tải file: $e');
     }
   }
 
-  Future<void> loadAsset(String assetPath) async {
+  Future<void> loadAsset(MusicTrack song) async {
     try {
-      await _player.setAsset(assetPath);
+      final audioSource = AudioSource.uri(
+        Uri.parse('asset:///${song.filePath}'),
+        tag: MediaItem(
+          id: song.id,
+          album: song.album ?? 'Sample Songs',
+          title: song.title,
+          artist: song.artist,
+        ),
+      );
+      await _player.setAudioSource(audioSource);
     } catch (e) {
       throw Exception('Lỗi tải asset: $e');
     }

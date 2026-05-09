@@ -179,9 +179,9 @@ class AudioProvider extends ChangeNotifier {
     final song = _playlist[index];
 
     if (song.filePath.startsWith('assets/')) {
-      await _audioService.loadAsset(song.filePath);
+      await _audioService.loadAsset(song);
     } else {
-      await _audioService.loadAudio(song.filePath);
+      await _audioService.loadAudio(song);
     }
 
     await _audioService.play();
