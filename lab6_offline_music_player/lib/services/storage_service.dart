@@ -10,6 +10,7 @@ class StorageService {
   static const String _volumeKey     = 'volume';
   static const String _volumeSyncKey = 'volume_sync';
   static const String _recentPlayedKey = 'recent_played_list';
+  static const String _positionKey   = 'playback_position';
 
   Future<void> savePlaylists(List<PlaylistModel> playlists) async {
     final prefs = await SharedPreferences.getInstance();
@@ -47,4 +48,9 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getStringList(_recentPlayedKey) ?? [];
   }
+  Future<void> savePlaybackPosition(int seconds) async =>
+      (await SharedPreferences.getInstance()).setInt(_positionKey, seconds);
+
+  Future<int> getPlaybackPosition() async =>
+      (await SharedPreferences.getInstance()).getInt(_positionKey) ?? 0;
 }

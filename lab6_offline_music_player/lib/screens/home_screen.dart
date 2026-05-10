@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/audio_provider.dart';
@@ -42,6 +43,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           )),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.sync, color: Colors.white),
+                      tooltip: 'Quét nhạc mới',
+                      onPressed: () {
+                        context.read<AudioProvider>().scanAndAddSongs();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Đang quét bộ nhớ để tìm nhạc mới...')),
+                        );
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.search, color: Colors.white),
@@ -107,6 +118,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     displaySongs.sort((a, b) => a.artist.toLowerCase().compareTo(b.artist.toLowerCase()));
                   } else if (_sortOption == 'Album (A-Z)') {
                     displaySongs.sort((a, b) => (a.album ?? '').toLowerCase().compareTo((b.album ?? '').toLowerCase()));
+                  } else if (_sortOption == 'Ngày thêm (Mới nhất)') {
+                    displaySongs.sort((a, b) {
+                      try {
+                        return File(b.filePath).lastModifiedSync().compareTo(File(a.filePath).lastModifiedSync());
+                      } catch (_) {
+                        return 0;
+                      }
+                    });
                   }
 
                   if (displaySongs.isEmpty) {
@@ -193,6 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   _buildSortItem('Tên (A-Z)'),
                                   _buildSortItem('Nghệ sĩ (A-Z)'),
                                   _buildSortItem('Album (A-Z)'),
+                                  _buildSortItem('Ngày thêm (Mới nhất)'),
                                 ],
                               ),
                             ],

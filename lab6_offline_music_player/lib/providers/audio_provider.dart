@@ -98,6 +98,32 @@ class AudioProvider extends ChangeNotifier {
       }
     }
 
+    final lastSongId = await _storageService.getLastPlayed();
+    if (lastSongId != null && _songs.isNotEmpty) {
+      try {
+        final lastIndex = _songs.indexWhere((s) => s.id == lastSongId);
+        if (lastIndex != -1) {
+          _playlist = List.from(_songs);
+          _currentIndex = lastIndex;
+          final song = _playlist[_currentIndex];
+
+          if (song.filePath.startsWith('assets/')) {
+            await _audioService.loadAsset(song);
+          } else {
+            await _audioService.loadAudio(song);
+          }
+
+          // Tua đến đúng số giây đã lưu (Không gọi play() để tránh app tự phát nhạc khi vừa mở)
+          final savedPos = await _storageService.getPlaybackPosition();
+          if (savedPos > 0) {
+            await _audioService.seek(Duration(seconds: savedPos));
+          }
+        }
+      } catch (e) {
+        debugPrint('Không thể nạp bài cũ: $e');
+      }
+    }
+
     _audioService.playerStateStream.listen((state) async {
       if (state.processingState == ProcessingState.completed) {
         if (_isHandlingNext) return;
@@ -200,6 +226,7 @@ class AudioProvider extends ChangeNotifier {
     }
 
     await _audioService.play();
+    await _storageService.savePlaybackPosition(0);
 
     _recentlyPlayed.removeWhere((s) => s.id == song.id);
     _recentlyPlayed.insert(0, song);
@@ -215,6 +242,7 @@ class AudioProvider extends ChangeNotifier {
   Future<void> playPause() async {
     if (_audioService.isPlaying) {
       await _audioService.pause();
+      await _storageService.savePlaybackPosition(_audioService.currentPosition.inSeconds);
     } else {
       await _audioService.play();
     }
