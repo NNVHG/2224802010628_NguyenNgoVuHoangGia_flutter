@@ -57,7 +57,7 @@ Một ứng dụng nghe nhạc offline mạnh mẽ, giao diện hiện đại đ
 ## 🎥 Video Demo
 
 Xem video giới thiệu các tính năng và trải nghiệm thực tế của ứng dụng tại đây:
-👉 **[Link Video Demo](https://youtube.com/link_video_cua_ban)**
+👉 **[Link Video Demo](https://drive.google.com/file/d/1_Be_q4IHbEDs0kH6FV0HypJv_4Vxj_tI/view?usp=sharing)**
 
 ## 🛠️ Công nghệ sử dụng (Technologies)
 
