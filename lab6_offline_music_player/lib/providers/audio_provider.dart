@@ -150,6 +150,8 @@ class AudioProvider extends ChangeNotifier {
       final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
       final assetKeys = manifest.listAssets();
 
+      debugPrint('=== DANH SÁCH TẤT CẢ ASSETS FLUTTER THẤY: $assetKeys ===');
+
       final audioExtensions = {'.mp3', '.m4a', '.wav', '.flac', '.ogg', '.aac'};
 
       final assetSongs = assetKeys.where((key) {
