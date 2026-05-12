@@ -113,7 +113,6 @@ class AudioProvider extends ChangeNotifier {
             await _audioService.loadAudio(song);
           }
 
-          // Tua đến đúng số giây đã lưu (Không gọi play() để tránh app tự phát nhạc khi vừa mở)
           final savedPos = await _storageService.getPlaybackPosition();
           if (savedPos > 0) {
             await _audioService.seek(Duration(seconds: savedPos));

@@ -90,7 +90,6 @@ class PlaylistScreen extends StatelessWidget {
                           } else if (value == 2) {
                             _showMergeDialog(context, pl, provider);
                           } else if (value == 4) {
-                            // [MỚI] Gọi hàm đổi tên
                             _showRenameDialog(context, pl, provider);
                           } else if (value == 3) {
                             provider.deletePlaylist(pl.id);
