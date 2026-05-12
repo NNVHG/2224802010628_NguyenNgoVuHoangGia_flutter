@@ -1,3 +1,4 @@
+# tổng quan từng bài ( mời thầy/cô ,các bạn, anh/chị vào từng bài để xem chi tiết)
 # widget_fundamentals
 #### Demo:
 <img width="441" height="810" alt="image" src="https://github.com/user-attachments/assets/939a7b99-4723-4a6f-83c6-0cfdccda8160" />
@@ -20,3 +21,8 @@ demo
 # Lab 5 — note app
 ## Hình ảnh demo ✨
 <img width="390" height="815" alt="image" src="https://github.com/user-attachments/assets/f4e8b8d5-f443-4a82-a3a4-40473d54186b" />
+
+# lab6_Offline Music Player - Flutter
+👉 **[Link Video Demo](https://drive.google.com/file/d/1_Be_q4IHbEDs0kH6FV0HypJv_4Vxj_tI/view?usp=sharing)**
+## Hình ảnh demo ✨
+
