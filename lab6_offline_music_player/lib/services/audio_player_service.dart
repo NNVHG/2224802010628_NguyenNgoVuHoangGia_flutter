@@ -57,7 +57,7 @@ class AudioPlayerService {
           album: song.album ?? 'Unknown Album',
           title: song.title,
           artist: song.artist,
-          artUri: song.albumArt != null ? Uri.file(song.albumArt!) : null,
+          artUri: null,
         ),
       );
       await _player.setAudioSource(audioSource);

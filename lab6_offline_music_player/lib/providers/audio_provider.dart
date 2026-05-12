@@ -83,7 +83,6 @@ class AudioProvider extends ChangeNotifier {
     final existing = await _playlistService.filterExistingFiles(saved);
     if (existing.isNotEmpty) {
       _songs = existing;
-    } else {
       await _loadAssetsMusic();
     }
 
@@ -153,31 +152,29 @@ class AudioProvider extends ChangeNotifier {
 
       final audioExtensions = {'.mp3', '.m4a', '.wav', '.flac', '.ogg', '.aac'};
 
-      final assetSongs = assetKeys
-          .where((key) {
+      final assetSongs = assetKeys.where((key) {
         final lower = key.toLowerCase();
         return lower.startsWith('assets/audio/') &&
             audioExtensions.any((ext) => lower.endsWith(ext));
-      })
-          .map((assetPath) {
+      }).map((assetPath) {
         final fileName = assetPath.split('/').last;
-        final title = fileName.contains('.')
-            ? fileName.substring(0, fileName.lastIndexOf('.'))
-            : fileName;
+        final title = fileName.contains('.') ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
         return MusicTrack(
-          id:       assetPath.hashCode.toString(),
-          title:    title,
-          artist:   'Sample Artist',
+          id: assetPath.hashCode.toString(),
+          title: title,
+          artist: 'Sample Artist',
           filePath: assetPath,
-          album:    'Sample Songs',
+          album: 'Sample Songs',
         );
-      })
-          .toList();
+      }).toList();
 
       if (assetSongs.isNotEmpty) {
-        _songs = assetSongs;
+        final existingIds = _songs.map((s) => s.id).toSet();
+        final newAssets = assetSongs.where((s) => !existingIds.contains(s.id)).toList();
+
+        _songs = [..._songs, ...newAssets];
         await _playlistService.saveSongs(_songs);
-        debugPrint('Loaded ${assetSongs.length} songs from assets');
+        debugPrint('Đã nạp thêm ${newAssets.length} bài hát từ assets');
       }
     } catch (e) {
       debugPrint('Error loading assets: $e');

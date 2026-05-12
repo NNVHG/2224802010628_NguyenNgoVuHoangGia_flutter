@@ -62,7 +62,10 @@ class PlaylistService {
       List<MusicTrack> songs) async {
     final result = <MusicTrack>[];
     for (final song in songs) {
-      if (await File(song.filePath).exists()) {
+      if (song.filePath.startsWith('assets/')) {
+        result.add(song);
+      }
+      else if (await File(song.filePath).exists()) {
         result.add(song);
       }
     }

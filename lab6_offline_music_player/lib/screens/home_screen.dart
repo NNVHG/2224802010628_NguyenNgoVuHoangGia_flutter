@@ -9,6 +9,7 @@ import '../models/song_model.dart';
 import 'now_playing_screen.dart';
 import 'playlist_screen.dart';
 import 'settings_screen.dart';
+import '../widgets/artwork_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -165,17 +166,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          width: 110, height: 110,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.cardBg,
-                                            borderRadius: BorderRadius.circular(12),
-                                            image: song.albumArt != null
-                                                ? DecorationImage(image: AssetImage(song.albumArt!), fit: BoxFit.cover)
-                                                : null,
-                                          ),
-                                          child: song.albumArt == null
-                                              ? const Icon(Icons.music_note, color: AppColors.primary, size: 40) : null,
+                                        ArtworkWidget(
+                                          artworkId: song.albumArt,
+                                          size: 110.0,
+                                          borderRadius: 12.0,
                                         ),
                                         const SizedBox(height: 8),
                                         Text(song.title,
