@@ -40,6 +40,19 @@ Một ứng dụng nghe nhạc offline mạnh mẽ, giao diện hiện đại đ
 | <img width="418" height="893" alt="image" src="https://github.com/user-attachments/assets/2d66dbb8-d6e6-49a1-9f40-106b29248a80" /> | <img width="426" height="895" alt="image" src="https://github.com/user-attachments/assets/f50d570e-7a71-4208-9c4f-629d85adaf10" /> | <img width="418" height="893" alt="image" src="https://github.com/user-attachments/assets/cc9119ce-3681-4804-ab0a-f96fe1917327" /> |
 | tìm kiếm | bộ lọc | lọc theo tên |
 | <img width="421" height="900" alt="image" src="https://github.com/user-attachments/assets/7d28674a-7fd4-4d49-9950-811460005401" /> | <img width="423" height="911" alt="image" src="https://github.com/user-attachments/assets/3ffad5af-1097-489b-a75d-2b14420a16be" /> | <img width="415" height="901" alt="image" src="https://github.com/user-attachments/assets/da6dcdf4-fa99-4920-a88b-298e8c74fdbc" /> |
+| cài đặt | đồng bộ âm thanh với thiết bị | cài đặt |
+| <img width="416" height="905" alt="image" src="https://github.com/user-attachments/assets/b758127d-13c1-4f21-9ca3-3f2b72769415" /> | <img width="425" height="894" alt="image" src="https://github.com/user-attachments/assets/fe159c0a-664c-4437-ba7c-49079f173b98" /> | <img width="421" height="911" alt="image" src="https://github.com/user-attachments/assets/f14b6df9-05d6-424a-94bb-7a7d0605d2ea" /> |
+| tắt đồng bộ âm thanh với thiết bị | trang chủ sau khi phát nhạc | --- |
+| <img width="416" height="898" alt="image" src="https://github.com/user-attachments/assets/5b9a85b6-21f3-4e61-972b-b24e26545013" /> | <img width="424" height="904" alt="image" src="https://github.com/user-attachments/assets/ec92fe11-f80b-45dc-8779-6fa439765ced" /> | --- |
+
+## 📸 Ảnh chụp màn hình các chức năng nhạc (Screenshots)
+
+| trình phát | tự chuyển bài | trang chủ |
+|:---:|:---:|:---:|
+| <img width="417" height="895" alt="image" src="https://github.com/user-attachments/assets/657a4c0b-dc45-4dc8-b0a7-aee10f6b5eee" /> | <img width="423" height="899" alt="image" src="https://github.com/user-attachments/assets/ea5ad3a2-eb60-4a2b-bc39-29a7be9f3d7c" /> | <img width="412" height="901" alt="image" src="https://github.com/user-attachments/assets/93871e25-e321-4e00-9247-46a631b4d939" /> |
+| phát trộn bài | trang chủ | --- |
+| <img width="418" height="912" alt="image" src="https://github.com/user-attachments/assets/255b99c4-53c5-4bf4-92c0-2d8579479705" /> | <img width="414" height="912" alt="image" src="https://github.com/user-attachments/assets/a33a337b-6fa0-4c48-b246-fbe7d52b0038" /> | --- |
+
 
 ## 🎥 Video Demo
 
