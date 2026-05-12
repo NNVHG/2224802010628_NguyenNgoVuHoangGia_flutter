@@ -50,8 +50,8 @@ Một ứng dụng nghe nhạc offline mạnh mẽ, giao diện hiện đại đ
 | trình phát | tự chuyển bài | trang chủ |
 |:---:|:---:|:---:|
 | <img width="417" height="895" alt="image" src="https://github.com/user-attachments/assets/657a4c0b-dc45-4dc8-b0a7-aee10f6b5eee" /> | <img width="423" height="899" alt="image" src="https://github.com/user-attachments/assets/ea5ad3a2-eb60-4a2b-bc39-29a7be9f3d7c" /> | <img width="412" height="901" alt="image" src="https://github.com/user-attachments/assets/93871e25-e321-4e00-9247-46a631b4d939" /> |
-| phát trộn bài | trang chủ | --- |
-| <img width="418" height="912" alt="image" src="https://github.com/user-attachments/assets/255b99c4-53c5-4bf4-92c0-2d8579479705" /> | <img width="414" height="912" alt="image" src="https://github.com/user-attachments/assets/a33a337b-6fa0-4c48-b246-fbe7d52b0038" /> | --- |
+| phát trộn bài | trang chủ | phát trong nền |
+| <img width="418" height="912" alt="image" src="https://github.com/user-attachments/assets/255b99c4-53c5-4bf4-92c0-2d8579479705" /> | <img width="414" height="912" alt="image" src="https://github.com/user-attachments/assets/a33a337b-6fa0-4c48-b246-fbe7d52b0038" /> | <img width="418" height="893" alt="image" src="https://github.com/user-attachments/assets/ff39d0b8-2634-498d-94c4-b0fb619d89f6" /> |
 
 
 ## 🎥 Video Demo
