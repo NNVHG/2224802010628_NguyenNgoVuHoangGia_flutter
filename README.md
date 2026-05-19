@@ -27,3 +27,11 @@
 | Màn hình chính ( chưa có nhạc) | Màn hình chính ( có nhạc) | trình phát |
 |:---:|:---:|:---:|
 | <img width="392" height="825" alt="image" src="https://github.com/user-attachments/assets/747db0e2-b85f-4713-98ab-a85d7c438a80" /> | <img width="418" height="911" alt="image" src="https://github.com/user-attachments/assets/4207e08d-fbbf-4785-a5b4-d7d4dc20703d" /> | <img width="414" height="912" alt="image" src="https://github.com/user-attachments/assets/a33a337b-6fa0-4c48-b246-fbe7d52b0038" /> |
+
+# Lab 7: Ứng dụng Đăng nhập (Login Application) - Flutter
+## 🖼️ Ảnh chụp màn hình (Screenshots)
+
+<img width="393" height="855" alt="image" src="https://github.com/user-attachments/assets/91104805-526b-46ef-8460-f8aa46175297" />
+
+---
+👉 **[Link Video Demo](https://drive.google.com/file/d/1Y2e8Ul7E2G3GtI4ryuzw8e2RNcwt2iH2/view?usp=sharing)**
