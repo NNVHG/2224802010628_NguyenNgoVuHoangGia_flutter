@@ -70,6 +70,8 @@ flutter run
 
 ## 🖼️ Ảnh chụp màn hình (Screenshots)
 
-*(Thay thế đường dẫn bên dưới bằng liên kết hình ảnh thực tế của ứng dụng sau khi chạy)*
+<img width="393" height="855" alt="image" src="https://github.com/user-attachments/assets/91104805-526b-46ef-8460-f8aa46175297" />
 
-```
+---
+👉 **[Link Video Demo](https://drive.google.com/file/d/1Y2e8Ul7E2G3GtI4ryuzw8e2RNcwt2iH2/view?usp=sharing)**
+
